@@ -1,0 +1,42 @@
+COMMAND
+["python3", "-B", "benchmark/harness.py", "score", "--task", "mnist", "--submission", "benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py", "--model", "GPT-6 Astra (ultra)", "--version", "v1 blind, standard prompt", "--labels-seen", "0", "--note", "codex orchestrator; sub-agent no tools, sample 1 of 3; fresh context; 0 tool calls audited; tools prohibited by instruction, not disabled"]
+
+STDOUT
+{
+ "task": "mnist",
+ "model": "GPT-6 Astra (ultra)",
+ "version": "v1 blind, standard prompt",
+ "labels_seen": 0,
+ "accuracy": 0.7748,
+ "n_params": 99927,
+ "n_nonzero": 54330,
+ "submission": "benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py",
+ "note": "codex orchestrator; sub-agent no tools, sample 1 of 3; fresh context; 0 tool calls audited; tools prohibited by instruction, not disabled",
+ "self_contained": true,
+ "rule_violations": [],
+ "seconds": 0.8,
+ "date": "2026-11-04"
+}
+
+STDERR
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:449: RuntimeWarning: divide by zero encountered in matmul
+  unexplained_ink = shifted_ink.reshape(n, 196) @ distance_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:449: RuntimeWarning: overflow encountered in matmul
+  unexplained_ink = shifted_ink.reshape(n, 196) @ distance_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:449: RuntimeWarning: invalid value encountered in matmul
+  unexplained_ink = shifted_ink.reshape(n, 196) @ distance_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:451: RuntimeWarning: divide by zero encountered in matmul
+  shifted_distance.reshape(n, 196) @ support_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:451: RuntimeWarning: overflow encountered in matmul
+  shifted_distance.reshape(n, 196) @ support_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:451: RuntimeWarning: invalid value encountered in matmul
+  shifted_distance.reshape(n, 196) @ support_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:453: RuntimeWarning: divide by zero encountered in matmul
+  enclosed_agreement = hole_features @ hole_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:453: RuntimeWarning: overflow encountered in matmul
+  enclosed_agreement = hole_features @ hole_matrix
+benchmark/submissions/mnist/gpt_6_astra_ultra_s1.py:453: RuntimeWarning: invalid value encountered in matmul
+  enclosed_agreement = hole_features @ hole_matrix
+
+EXIT CODE
+0
