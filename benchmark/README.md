@@ -57,6 +57,19 @@ Submissions that import this repository's modules are allowed as reference entri
 marked *self-contained: no*; a fair model-to-model comparison uses self-contained files
 written from the prompt alone.
 
+## Running a model through its API
+
+`run_api.py` sends the identical prompt to an OpenAI or Anthropic model with no tools and a
+one-line system message, saves each reply as a submission and scores it:
+
+```bash
+export OPENAI_API_KEY=...          # or ANTHROPIC_API_KEY
+python benchmark/run_api.py --task mnist --provider openai --model gpt-5-codex --n 3
+```
+
+Use `--n 3` or more: one reply is one sample, and blind runs of the same model vary by
+ten points or more on MNIST (see `RUNS.md`).
+
 ## What a row means
 
 `accuracy` is the written network's test accuracy. `non-zero` is how many weights the author
