@@ -1,5 +1,8 @@
 # Digits on MNIST — the weights are 36 ASCII drawings
 
+![architecture](assets/arch_mnist.png)
+
+
 [Source](https://github.com/BirgerMoell/handnet/blob/main/handnet/mnist.py). 662 hand-drawn ink pixels, no training, numpy only. **55.4% blind, 79.4% after two revisions** — what a trained classifier gets from about 200 labelled images. This is the case where hand-writing loses, and the confusion matrix explains why.
 
 ![The 36 templates](assets/mnist_templates.png)

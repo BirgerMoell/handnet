@@ -1,5 +1,8 @@
 # Sentiment on SST-2 — a 1.5k-parameter hand-written net
 
+![architecture](assets/arch_sentiment.png)
+
+
 [Source](https://github.com/BirgerMoell/handnet/blob/main/handnet/sentiment.py). 1,567 non-zero parameters, no training, numpy only. **78.6% on the SST-2 test set with zero labels seen**, 79.2% after one revision — more than a logistic regression trained on 2,048 labelled sentences.
 
 ## Results

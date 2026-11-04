@@ -1,5 +1,10 @@
 # Hand-written transformers
 
+![architecture](assets/arch_transformer_addition.png)
+![architecture](assets/arch_transformer_dyck.png)
+![architecture](assets/arch_transformer_induction.png)
+
+
 [Source](https://github.com/BirgerMoell/handnet/blob/main/handnet/transformer.py). A decoder-only transformer in numpy (token + position
 embeddings, causal multi-head attention, ReLU MLP, residual stream, unembedding; no
 LayerNorm, because every residual dimension has a meaning the author assigned), and

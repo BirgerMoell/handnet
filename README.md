@@ -32,6 +32,10 @@ paper: [`paper/main.pdf`](docs/handnet.pdf).
 More networks are being added; see [COORDINATION.md](COORDINATION.md) for what is in
 progress and how to add one.
 
+![architecture of the text-quality network](docs/assets/arch_text_quality.png)
+
+Architecture figures for every network: [docs/architectures](https://birgermoell.github.io/handnet/architectures.html) (source `examples/figures/architectures.py`).
+
 ## Quick start
 
 ```bash

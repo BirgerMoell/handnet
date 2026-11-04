@@ -2,6 +2,11 @@
 \subsection{A 1.5k-parameter sentiment classifier for SST-2}
 \label{sec:sentiment}
 
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{figures/arch_sentiment.pdf}\\[2pt]
+\caption{The sentiment network: a lexicon, a gated cell with ten scalars, a readout.}\label{fig:arch-sent}
+\end{figure}
+
 \paragraph{Task.} SST-2 is the binary Stanford Sentiment Treebank \cite{socher2013}:
 single movie-review sentences, lower-cased and pre-tokenised (\texttt{does n't}),
 labelled positive or negative. We use the GLUE split (6{,}919 train / 872 dev / 1{,}821

@@ -1,5 +1,8 @@
 # Text quality, 0–100, any language — a 100k-parameter hand-written net
 
+![architecture](assets/arch_text_quality.png)
+
+
 [Source](https://github.com/BirgerMoell/handnet/blob/main/handnet/text_quality.py). 100,331 parameters, 627 non-zero, no training, numpy only.
 
 ## What it does

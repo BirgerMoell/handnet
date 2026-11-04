@@ -2,6 +2,11 @@
 \subsection{A 100k-parameter multilingual text-quality network}
 \label{sec:text-quality}
 
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{figures/arch_text_quality.pdf}\\[2pt]
+\caption{The text-quality network. Boxes are stages, the badge is the number of non-zero weights written for that stage.}\label{fig:arch-tq}
+\end{figure}
+
 \paragraph{Task.} Score a document in $[0,100]$ for usability as text in the
 pretraining-filter sense: clean running prose versus markup, tables, logs,
 mojibake, repetition, shouting, navigation lists, keyword lists, fragments and

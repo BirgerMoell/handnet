@@ -1,5 +1,8 @@
 # MNIST without the training — a hand-written digit classifier
 
+![architecture](assets/arch_mnist_holes.png)
+
+
 [Source](https://github.com/BirgerMoell/handnet/blob/main/handnet/mnist_holes.py) · [Results & live demo](results.html#mnist) · 21,772 parameters, 2,411 non-zero, no training, numpy only.
 
 **83.3 % on the 10,000 MNIST test images.** Majority class: 11.4 %. A *trained* nearest-class-mean
