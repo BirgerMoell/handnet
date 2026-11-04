@@ -21,11 +21,22 @@ tasks at release are MNIST, SST-2 and ten-digit addition as a sequence model; a
 task is a data loader with a sealed split, a prompt and, optionally, a report
 template.
 
-Table~\ref{tab:bench} is the leaderboard at submission, populated by the networks
-of this paper as the first entries (they are adapters around the repository's
-modules and are marked as not self-contained; a model-to-model comparison uses
-files written from the prompt alone). The same table across model generations is
-the experiment we would most like to see run.
+Table~\ref{tab:bench} is the leaderboard at submission. The reference rows are the
+networks of this paper (adapters around the repository's modules, marked as not
+self-contained). The cross-model rows are the first run of the benchmark proper:
+four Claude models---Haiku 5.5, Sonnet 5.5, Opus 5.5 and Fable 5.1---each received
+the byte-identical prompt in a fresh context with no tools (the agent harness
+reports zero tool calls for every row) and returned one self-contained file,
+which was scored once. Every model chose a template matcher on a $2\times2$-pooled
+image; they differ in how the templates were made (ASCII drawings for Haiku and
+Fable, rasterised stroke geometry for Sonnet and Opus), in whether the templates
+were centred and normalised the way MNIST is, and in the number of writing
+styles per digit (one for Haiku, up to 47 slant and style variants for Opus).
+Accuracy ranges from chance (Haiku) to 55.3\,\% (Opus). These are single samples
+from each model; the earlier blind Fable network of Section~\ref{sec:mnist}
+scored 55.4\,\% with the same approach, so run-to-run variance is of the order of
+ten points and a model's benchmark score should be the mean of several runs
+(\texttt{benchmark/RUNS.md}).
 
 \begin{table}[h]\centering\small
 \begin{tabular}{llrrrr}\toprule
@@ -36,8 +47,13 @@ mnist & v3 rev2 & 500 & 79.4 & 7{,}066 & 662 \\
 mnist & hole-finder & 5{,}000 & 83.3 & 21{,}772 & 2{,}411 \\
 sst2 & v1 blind & 0 & 78.6 & 8{,}507 & 1{,}464 \\
 sst2 & v2 rev1 & 872 & 79.2 & 9{,}167 & 1{,}567 \\
-addition & v1 & 0 & 100.0 & 2{,}851 & 405 \\
+addition & v1 & 0 & 100.0 & 2{,}851 & 405 \\\midrule
+\multicolumn{6}{l}{\emph{Cross-model run, standard prompt, blind, self-contained, one sample each}}\\
+mnist & Claude Haiku 5.5 & 0 & 10.6 & 1{,}960 & 1{,}960 \\
+mnist & Claude Sonnet 5.5 & 0 & 31.2 & 1{,}970 & 1{,}960 \\
+mnist & Claude Fable 5.1 & 0 & 41.6 & 4{,}824 & 4{,}716 \\
+mnist & Claude Opus 5.5 & 0 & 55.3 & 10{,}074 & 9{,}639 \\
 \bottomrule\end{tabular}
-\caption{HandNet-Bench rows for Claude Fable 5.1 (\texttt{benchmark/LEADERBOARD.md}). For the template MNIST networks the parameters are the ASCII drawings themselves.}
+\caption{HandNet-Bench rows (\texttt{benchmark/LEADERBOARD.md}). Top: this paper's networks as reference entries. Bottom: four models given the identical prompt. For the template MNIST networks the parameters are the drawings themselves.}
 \label{tab:bench}
 \end{table}

@@ -25,3 +25,10 @@ a row with the prompt alone through any interface; please record the interface i
 Revision rounds, when run, use `harness.py devreport` and the `prompts/devreport_<task>.md`
 template; the revised file is saved as `_v2.py` and scored with `--labels-seen` equal to the
 report's size.
+
+## Variance
+
+A model's answer to the prompt is one sample. The two blind Fable 5.1 MNIST rows (the
+paper's first network, 55.4%, and the benchmark run, 41.6%) differ by 14 points with
+the same approach. Report the mean and range over at least three independent runs before
+comparing models; the harness records each run as its own row.
