@@ -1,3 +1,5 @@
+![handnet](assets/banner.png)
+
 # handnet
 
 **Neural networks whose weights are written by hand, not trained.**
@@ -6,7 +8,7 @@ Ordinary architectures — embeddings, convolutions, ReLU recurrences, MLPs — 
 non-zero weight placed by reasoning about the task. Readable, auditable, deterministic,
 data-free, and still a real network you can export to PyTorch and fine-tune.
 
-[Source on GitHub](https://github.com/BirgerMoell/handnet) · [Architectures](architectures.html) · [Method](method.html) · [All results & live demo](results.html) · [Paper (PDF)](handnet.pdf)
+[Source on GitHub](https://github.com/BirgerMoell/handnet) · [Architectures](architectures.html) · [Benchmark](benchmark.html) · [Method](method.html) · [All results & live demo](results.html) · [Paper (PDF)](handnet.pdf)
 
 ## Networks
 

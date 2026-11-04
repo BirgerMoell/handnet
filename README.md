@@ -1,3 +1,5 @@
+![handnet — neural networks with hand-written weights](docs/assets/banner.png)
+
 # handnet — neural networks with hand-written weights
 
 Networks whose weights are **designed, not trained**. The architecture is an ordinary
@@ -97,6 +99,19 @@ The method, with the full toolbox of hand-built units (range detectors from ReLU
 `min(a, b)` gates, run-length counters as a ReLU-RNN, first-of-run counting with
 `x − same_prev`), is in [METHOD.md](METHOD.md).
 
+## HandNet-Bench: a benchmark for models that write weights
+
+The same procedure turned into a benchmark: every model receives the identical prompt
+(`benchmark/prompts/`), outputs one Python file whose `WEIGHTS` it wrote by hand, and is
+scored on a sealed test set; revision rounds use a fixed development report and are
+recorded with the labels they saw. Tasks: MNIST, SST-2, addition. See
+[benchmark/README.md](benchmark/README.md) and the [leaderboard](benchmark/LEADERBOARD.md).
+
+```bash
+python benchmark/harness.py prompt --task mnist        # the standard prompt
+python benchmark/harness.py score  --task mnist --submission my_net.py --model "my model"
+```
+
 ## Repository layout
 
 ```
@@ -105,6 +120,7 @@ examples/<name>/    demo, evaluation scripts, results and worked explanations pe
 tests/              behavioural tests that pin what each network must and must not do
 docs/               the GitHub Pages site (https://birgermoell.github.io/handnet)
 paper/              the write-up: method, experiments, results
+benchmark/          HandNet-Bench: standard prompts, harness, submissions, leaderboard
 METHOD.md           how to hand-write a network, step by step
 COORDINATION.md     task board and conventions for people/threads working in parallel
 ```

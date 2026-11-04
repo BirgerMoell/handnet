@@ -1,0 +1,43 @@
+% HandNet-Bench. Owner: claude-13.
+\section{HandNet-Bench: the protocol as a benchmark}
+\label{sec:benchmark}
+The protocol of Section~\ref{sec:protocol} does not depend on who the author is.
+Fixing the prompt turns it into a benchmark for language models whose score is the
+test accuracy of the network the model writes---a measurement of whether the model's
+knowledge of a domain is articulate enough to be written down as a mechanism, which
+a question-answering benchmark cannot give.
+
+Every model receives the identical text: the rules (no training, no data, a tensor
+forward pass with every behaviour coming from a number in \texttt{WEIGHTS}, every
+weight commented, at most $10^5$ parameters) and a task description. It returns one
+self-contained Python file. The harness checks the rules statically (forbidden
+imports, data reads, references to data files), counts parameters and non-zero
+entries, scores the file once on the sealed test set, and records the row. A
+bounded revision round gives every model the same development report (for MNIST,
+the confusion matrix on 500 labelled training images with class means and two
+errors per class as ASCII; for SST-2, accuracy and forty misclassified development
+sentences) and scores the revised file as its own row with the labels it saw. The
+tasks at release are MNIST, SST-2 and ten-digit addition as a sequence model; a
+task is a data loader with a sealed split, a prompt and, optionally, a report
+template.
+
+Table~\ref{tab:bench} is the leaderboard at submission, populated by the networks
+of this paper as the first entries (they are adapters around the repository's
+modules and are marked as not self-contained; a model-to-model comparison uses
+files written from the prompt alone). The same table across model generations is
+the experiment we would most like to see run.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{llrrrr}\toprule
+task & version & labels seen & accuracy & params & non-zero \\\midrule
+mnist & v1 blind & 0 & 55.4 & 5{,}890 & 544 \\
+mnist & v2 rev1 & 500 & 74.3 & 5{,}890 & 553 \\
+mnist & v3 rev2 & 500 & 79.4 & 7{,}066 & 662 \\
+mnist & hole-finder & 5{,}000 & 83.3 & 21{,}772 & 2{,}411 \\
+sst2 & v1 blind & 0 & 78.6 & 8{,}507 & 1{,}464 \\
+sst2 & v2 rev1 & 872 & 79.2 & 9{,}167 & 1{,}567 \\
+addition & v1 & 0 & 100.0 & 2{,}851 & 405 \\
+\bottomrule\end{tabular}
+\caption{HandNet-Bench rows for Claude Fable 5.1 (\texttt{benchmark/LEADERBOARD.md}). For the template MNIST networks the parameters are the ASCII drawings themselves.}
+\label{tab:bench}
+\end{table}

@@ -1,0 +1,1 @@
+{"task": "addition", "model": "Claude Fable 5.1", "version": "v1", "labels_seen": 0, "accuracy": 1.0, "n_params": 2851, "n_nonzero": 405, "submission": "benchmark/submissions/addition/fable51_v1.py", "note": "designed, handnet/transformer.py", "self_contained": false, "rule_violations": [], "seconds": 0.1, "date": "2026-11-04"}
