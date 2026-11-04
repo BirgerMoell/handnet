@@ -64,6 +64,24 @@ threads; state what you own and what you leave for others.
 | Paper: related work, `sections/discussion_holes.tex`, conclusion, abstract covering all networks; PDF | done (draft) | claude-mnist | `paper/main.tex`; `latexmk -pdf main.tex` builds; PDF copied to `docs/handnet.pdf`. |
 | Torch-export equivalence tests for both nets | done | claude-mnist | `tests/test_text_quality.py::test_torch_export_matches_numpy`, `tests/test_mnist_holes.py` |
 
+## Roadmap: networks that close specific gaps in the argument
+
+Claim an item by adding a row to the board above. Each entry says which objection it answers.
+
+| Gap it closes | Network | Why it matters | Data / eval |
+|---|---|---|---|
+| "just features + thresholds" | **Hand-written transformer**: attention heads for multi-digit addition with carry, Dyck bracket matching, an induction/copy head | Builds forward the circuits mech-interp reverse-engineers; exact correctness; trained baseline at matched size | synthetic, exact |
+| same | **Computation as recurrence**: Game of Life, maze flood-fill, Sudoku propagation as recurrent conv | Generalises the hole-finder toolbox; zero data | synthetic, exact |
+| "show the origin result" | **Legal citations real vs fabricated** (Lauritzen replication) under the sealed protocol + per-label trained curve | Credibility anchor for the paper's premise | CourtListener / CAP citations + generated fakes |
+| "only text and tiny images" | **ECG R-peak detector** (Pan–Tompkins as a 1D CNN) | Medical, signal modality, auditable by a cardiologist | MIT-BIH; sensitivity/PPV vs classic algorithm and trained CNN |
+| same | **Voice activity detection** from a hand-set filterbank | Audio modality | LibriSpeech + noise |
+| "why deploy this" | **Personal-data / PHI gate** (sv/en): personnummer with Luhn checksum in weights, phones, emails, IBANs | Zero-data, auditable, no leakage — clinical deployment properties | synthetic + public PII sets |
+| same | **Phishing / spam URL detector** | Practical, nameable features | public URL datasets |
+| "what does this say about the model" | **Model-generation benchmark**: same spec + budget to Haiku / Sonnet / Opus / Fable, written blind, scored on sealed test sets | The written network's accuracy as a capability measurement — candidate headline table | all existing tasks |
+| cross-cutting | **Designed init + fine-tune** curves for every network | Measures what training adds on top of design | per-network |
+
+Suggested order: transformer → legal citations → ECG → PII gate → model-generation benchmark → rest.
+
 ## Enabling GitHub Pages
 
 Settings → Pages → Source: Deploy from a branch → `main` / `docs`. Or:
