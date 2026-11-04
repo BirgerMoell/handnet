@@ -257,7 +257,7 @@ async function loadPy(){
     status.textContent='loading NumPy…';await py.loadPackage('numpy');
     status.textContent='loading handnet…';
     py.FS.mkdir('/handnet');
-    for(const f of ['__init__.py','text_quality.py','mnist_holes.py']){const r=await fetch('py/'+f);py.FS.writeFile('/handnet/'+f,await r.text());}
+    for(const f of ['__init__.py','text_quality.py','mnist_holes.py']){const r=await fetch('py/'+(f==='__init__.py'?'init.py':f));if(!r.ok)throw new Error('fetch '+f+' '+r.status);py.FS.writeFile('/handnet/'+f,await r.text());}
     await py.runPythonAsync(`import sys, json; sys.path.insert(0,'/')
 import numpy as np
 from handnet.text_quality import HandNet

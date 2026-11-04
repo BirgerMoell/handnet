@@ -24,7 +24,8 @@ for f in ("fineweb2_auc", "fineweb2_hist", "ablation_text", "holes_mnist_confusi
 if os.path.exists(os.path.join(ROOT, "paper", "main.pdf")):
     shutil.copy(os.path.join(ROOT, "paper", "main.pdf"), os.path.join(DOCS, "handnet.pdf"))
 for f in ("__init__.py", "text_quality.py", "mnist_holes.py"):
-    shutil.copy(os.path.join(ROOT, "handnet", f), os.path.join(DOCS, "py", f))
+    # Jekyll does not serve files whose name starts with an underscore, so __init__.py is published as init.py
+    shutil.copy(os.path.join(ROOT, "handnet", f), os.path.join(DOCS, "py", f if f != "__init__.py" else "init.py"))
 pass
 
 fw = json.load(open(os.path.join(ROOT, "examples", "text_quality", "fineweb2_results.json")))
