@@ -39,13 +39,23 @@ and specifications. Code, results and an in-browser demo are at
 \url{https://birgermoell.github.io/handnet/}.
 \end{abstract}
 
+\begin{figure}[h]\centering
+\includegraphics[width=0.92\linewidth]{figures/stroke_detector.pdf}
+\caption{The method in one picture. A: look at the task (a horizontal stroke in a digit).
+B: write the weights of a detector for it, with a reason for every entry (a bar of $+1$ with
+a $-0.25$ surround, scale $0.5$). C: apply it as an ordinary convolution; a ReLU with a
+hand-set threshold fires on the horizontal stroke and not on the diagonal. Every network
+in this paper is built from units written this way.}
+\label{fig:teaser}
+\end{figure}
+
 \section{Introduction}
 A trained network of 100{,}000 parameters uses all of them a little. The
 question this paper asks is what happens when a network of the same shape uses a
 few hundred of them a lot, and the rest not at all---when the weights are
 \emph{written} rather than learned.
 
-The question is not academic. Much of what a small classifier needs to know is
+Figure~\ref{fig:teaser} shows the whole procedure on one unit. The question is not academic. Much of what a small classifier needs to know is
 knowledge people already have in words: a document that is 40\,\% angle brackets
 is markup; \emph{not} flips the next few words; a zero has a hole and a one does
 not. Classical pipelines put such knowledge into hand-designed features and

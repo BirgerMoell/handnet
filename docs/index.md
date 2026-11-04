@@ -34,6 +34,12 @@ negation and markup are; the pixels that separate a 3 from a 5 are not. The prot
 this comparison — blind write, sealed test set, bounded revisions each reported with the labels it
 looked at, trained baselines at matched label counts — is in [Method, section 7](method.html#7-the-protocol-for-a-fair-comparison-with-training).
 
+## The idea in one picture
+
+![inspect, write the weights, apply](assets/stroke_detector.png)
+
+*Look at the task, write a detector for it with a reason for every entry, apply it as an ordinary convolution. Every network here is built from units written this way.*
+
 ## The idea in one example
 
 ```python

@@ -79,6 +79,8 @@ to the unit it belongs to, and each network's example README states exactly what
 meant for it (for MNIST: class-conditional feature means and confusion matrices on 5,000 training images;
 test set scored once). `METHOD.md` is the how-to for writing your own.
 
+![inspect the digit, write the weights, apply the same detector](docs/assets/stroke_detector.png)
+
 ## Why hand-written weights?
 
 A trained 100k-parameter model uses all 100k weights a little. A designed one uses a
