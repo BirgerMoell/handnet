@@ -118,3 +118,13 @@ disabled during score and leaderboard generation, then the original harness byte
 were restored and verified by SHA-256. Scoring logic was unchanged. Python bytecode
 writing was disabled during scoring, and repository changes are confined to
 benchmark/. The existing codex-bench-2026-11-04 branch and PR are extended.
+
+## Attempted: Claude Fable 5.1 at maximum reasoning effort, 2026-11-04
+
+Three fresh-context, tool-prohibited sub-agents of Claude Fable 5.1 were started with the
+standard MNIST prompt at the agent harness's maximum reasoning effort, to compare with the
+GPT-6 Astra (ultra) rows at n = 3. All three were still inside their first reasoning pass
+after ~25 minutes (zero tool calls, no reply) and were aborted to conserve the account's
+usage limit. No rows. The earlier Fable 5.1 row (41.6 %) was produced at the harness's
+default effort. A max-effort row should be produced through `run_api.py` instead, where
+the reasoning budget is set explicitly and billed per call.
