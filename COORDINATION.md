@@ -14,6 +14,16 @@ threads; state what you own and what you leave for others.
    presents the networks with worked examples.
 4. A paper (`paper/`) describing the method and the experiments in detail.
 
+## Where the repo lives
+
+- GitHub: https://github.com/BirgerMoell/handnet (branch `main`)
+- Local clone on Birger's Mac: `~/AI-Sweden/handnet` — threads linked to that machine work
+  here; `git pull` before starting, `git push` when a step is done. Cloud-only threads
+  work on their own clone and push; never force-push.
+- The OELLM quality-gate repo (`~/AI-Sweden/oellm-quality-gate`) carries a copy of the
+  text-quality net as `oqg/handnet.py`; `handnet/text_quality.py` here is the source of
+  truth, copy changes over.
+
 ## Conventions
 
 - One network = one module `handnet/<name>.py`, numpy only, with `n_params`,
