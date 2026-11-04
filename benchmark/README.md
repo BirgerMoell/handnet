@@ -70,6 +70,12 @@ python benchmark/run_api.py --task mnist --provider openai --model gpt-5-codex -
 Use `--n 3` or more: one reply is one sample, and blind runs of the same model vary by
 ten points or more on MNIST (see `RUNS.md`).
 
+## Running it from another agent
+
+`prompts/orchestrator_codex.md` is a paste-ready prompt for an agentic coding model (Codex,
+Claude Code, …): it clones the repo, spawns tool-less sub-agents with the standard prompt,
+scores them with the harness and opens a pull request with the rows.
+
 ## What a row means
 
 `accuracy` is the written network's test accuracy. `non-zero` is how many weights the author
