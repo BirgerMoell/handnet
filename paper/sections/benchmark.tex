@@ -38,6 +38,22 @@ scored 55.4\,\% with the same approach, so run-to-run variance is of the order o
 ten points and a model's benchmark score should be the mean of several runs
 (\texttt{benchmark/RUNS.md}).
 
+The benchmark was then run from a second agent system, OpenAI's Codex, using the
+orchestrator prompt in \texttt{benchmark/prompts/}: it spawned three fresh-context,
+tool-prohibited sub-agents of \texttt{gpt-6-astra} at its highest reasoning setting,
+saved their replies unchanged, scored them, and opened a pull request with audit
+logs. The three samples score 77.5, 72.2 and 70.9\,\% (mean 73.5), the best blind
+result on the board, with 44--89k non-zero weights against a budget of 100k. The
+best of them is not a plain template matcher: it renders analytic pen paths per
+digit and reads three channels---ink away from the proposed strokes, proposed
+strokes that are absent, and the location of enclosed white regions---the same
+hole evidence that Section~\ref{sec:mnist-holes} found decisive. Codex's own
+self-written sample (one reply, no fresh context, 33.0\,\%) is reported separately.
+All rows were re-scored independently before merging. With one model family at
+$n=3$ and the others at $n=1$, the ordering is suggestive rather than established;
+the harness and the API runner (\texttt{benchmark/run\_api.py}) exist so that the
+table can be filled in at $n\ge3$ for every model.
+
 \begin{table}[h]\centering\small
 \begin{tabular}{llrrrr}\toprule
 task & version & labels seen & accuracy & params & non-zero \\\midrule
@@ -53,6 +69,8 @@ mnist & Claude Haiku 5.5 & 0 & 10.6 & 1{,}960 & 1{,}960 \\
 mnist & Claude Sonnet 5.5 & 0 & 31.2 & 1{,}970 & 1{,}960 \\
 mnist & Claude Fable 5.1 & 0 & 41.6 & 4{,}824 & 4{,}716 \\
 mnist & Claude Opus 5.5 & 0 & 55.3 & 10{,}074 & 9{,}639 \\
+mnist & Codex (session, model id n/a) & 0 & 33.0 & 8{,}634 & 2{,}531 \\
+mnist & GPT-6 Astra (ultra), 3 samples & 0 & 77.5 / 72.2 / 70.9 & $\le$99{,}927 & 54k / 89k / 44k \\
 \bottomrule\end{tabular}
 \caption{HandNet-Bench rows (\texttt{benchmark/LEADERBOARD.md}). Top: this paper's networks as reference entries. Bottom: four models given the identical prompt. For the template MNIST networks the parameters are the drawings themselves.}
 \label{tab:bench}
