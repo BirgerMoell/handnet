@@ -95,3 +95,15 @@ def test_rnn_closed_form_matches_loop():
     f = net.features(text)
     assert np.allclose(f[C:C + H], hs.max(0), atol=1e-4)
     assert np.allclose(f[C + H:C + 2 * H], hs.mean(0), atol=1e-4)
+
+
+def test_torch_export_matches_numpy():
+    import pytest
+    torch = pytest.importorskip("torch")
+    net = HandNet()
+    tnet = net.to_torch().eval()
+    for text in (PROSE["swe"], JUNK["html"], PROSE["jpn"]):
+        x = torch.tensor(encode(text))[None]
+        with torch.no_grad():
+            out = float(tnet(x)[0])
+        assert abs(out - net.score(text)) < 1e-2, (text[:30], out, net.score(text))

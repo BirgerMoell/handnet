@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HandNet — networks whose weights were written by hand</title>
+<meta name="description" content="Two neural networks with zero training: a language-agnostic text-quality gate (AUC 0.907 on FineWeb-2 across 33 languages) and an MNIST classifier (83.3%). Results, paper, code and a live demo.">
+<style>
+:root{color-scheme:light dark;
+  --bg:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--grid:#e1e0d9;--line:#c3c2b7;
+  --blue:#2a78d6;--orange:#eb6834;--aqua:#1baf7a;--blue-soft:#cde2fb;--code:#f0efec}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--line:#383835;
+  --blue:#3987e5;--orange:#d95926;--aqua:#199e70;--blue-soft:#184f95;--code:#242422}}
+:root[data-theme="dark"]{--bg:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--line:#383835;
+  --blue:#3987e5;--orange:#d95926;--aqua:#199e70;--blue-soft:#184f95;--code:#242422}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:32px 16px 80px}
+h1{font-size:2.1rem;line-height:1.15;margin:.2em 0 .3em;letter-spacing:-.01em}
+h2{font-size:1.45rem;margin:2.2em 0 .5em;padding-top:.6em;border-top:1px solid var(--grid)}
+h3{font-size:1.05rem;margin:1.6em 0 .4em}
+p,li{color:var(--ink);max-width:72ch}
+.lede{font-size:1.1rem;color:var(--ink2);max-width:70ch}
+a{color:var(--blue)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}
+code{background:var(--code);padding:1px 5px;border-radius:4px}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow:auto;line-height:1.4}
+pre code{background:none;padding:0}
+.nav{display:flex;gap:14px;flex-wrap:wrap;font-size:.95rem;margin:10px 0 26px}
+.nav a{text-decoration:none;border:1px solid var(--line);padding:5px 11px;border-radius:999px;color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:22px 0}
+.stat{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:14px 16px}
+.stat b{display:block;font-size:1.9rem;font-weight:600;letter-spacing:-.01em}
+.stat span{color:var(--ink2);font-size:.9rem}
+table{border-collapse:collapse;width:100%;font-size:.86rem;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:4px 7px;border-bottom:1px solid var(--grid);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink2);font-weight:500}
+td.win{color:var(--blue)} td.lose{color:var(--orange)}
+td.diag{background:var(--blue-soft);font-weight:600} td.hot{color:var(--orange);font-weight:600}
+.scroll{overflow:auto;border:1px solid var(--grid);border-radius:8px;background:var(--surface);padding:4px 8px}
+figure{margin:18px 0}
+figure img{max-width:100%;height:auto;border-radius:8px;background:#fcfcfb;display:block}
+figcaption{color:var(--ink2);font-size:.88rem;margin-top:6px;max-width:72ch}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:720px){.two{grid-template-columns:1fr}}
+svg.auc{width:100%;max-width:620px;height:auto;display:block;background:var(--surface);border:1px solid var(--grid);border-radius:8px;padding:6px}
+svg.auc .lbl{font:11px ui-monospace,monospace;fill:var(--ink2);text-anchor:end}
+svg.auc .tick{font:10px system-ui;fill:var(--muted);text-anchor:middle}
+svg.auc .grid{stroke:var(--grid);stroke-width:1}
+svg.auc .mean{stroke:var(--blue);stroke-width:1;stroke-dasharray:3 3}
+svg.auc .net{fill:var(--blue)} svg.auc .base{fill:var(--grid)}
+svg.auc .hit{fill:transparent}
+svg.auc g.bar:hover .net{fill:var(--orange)}
+.legend{display:flex;gap:18px;font-size:.85rem;color:var(--ink2);margin:6px 0 2px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:4px 8px;border-radius:6px;display:none;z-index:9}
+.sk-row{display:flex;gap:6px;align-items:center;overflow:auto;padding:4px 0}
+.sk-name{width:40px;font-size:.8rem;color:var(--ink2);flex:none}
+pre.sk{margin:0;padding:4px 6px;font-size:11px;line-height:1.1;letter-spacing:.1em;background:var(--surface);border:1px solid var(--grid)}
+.demo{background:var(--surface);border:1px solid var(--grid);border-radius:12px;padding:18px;margin:16px 0}
+.demo textarea{width:100%;min-height:120px;font:14px/1.45 ui-monospace,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+button{font:inherit;font-size:.92rem;background:var(--ink);color:var(--bg);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.45;cursor:default}
+.out{font-family:ui-monospace,monospace;font-size:.86rem;white-space:pre-wrap;background:var(--bg);border:1px solid var(--grid);border-radius:8px;padding:10px;min-height:52px;margin-top:8px}
+.score{font-size:2.2rem;font-weight:600;letter-spacing:-.02em}
+canvas#pad{background:#000;border-radius:8px;touch-action:none;width:224px;height:224px;cursor:crosshair}
+canvas#thumb{image-rendering:pixelated;width:112px;height:112px;background:#000;border-radius:6px}
+.status{font-size:.85rem;color:var(--ink2)}
+.foot{margin-top:60px;color:var(--ink2);font-size:.88rem;border-top:1px solid var(--grid);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<main>
+<h1>HandNet<br><span style="font-weight:400;color:var(--ink2)">neural networks whose weights were written by hand</span></h1>
+<p class="lede">What happens if you build a neural network the way an engineer builds a circuit — by deciding every weight
+instead of growing them with gradient descent? Two networks, zero training, every unit named. A text-quality gate that
+works in every script, and MNIST, the hello world of machine learning, done without the learning.</p>
+<div class="nav">
+  <a href="index.html">Home</a>
+  <a href="https://github.com/BirgerMoell/handnet">GitHub</a>
+  <a href="method.html">Method</a>
+  <a href="handnet.pdf">Paper (PDF)</a>
+  <a href="#text">Text quality</a>
+  <a href="#mnist">MNIST</a>
+  <a href="#demo">Live demo</a>
+  <a href="#making">How it was made</a>
+</div>
+
+<div class="stats">
+  <div class="stat"><b>{{MEAN_AUC}}</b><span>mean AUC, kept vs removed on FineWeb-2, {{N_LANGS}} languages ({{MIN_AUC}}–{{MAX_AUC}})</span></div>
+  <div class="stat"><b>627</b><span>non-zero weights in the text net (of 100,331); ~6 ms per document in NumPy</span></div>
+  <div class="stat"><b>{{MN_ACC}}%</b><span>MNIST test accuracy with zero training (trained nearest-class-mean: {{MN_NM}}%)</span></div>
+  <div class="stat"><b>{{MN_NZ}}</b><span>non-zero weights in the MNIST net (of {{MN_PARAMS}}); {{MN_MS}} ms per image</span></div>
+</div>
+
+<h2 id="text">1 · Text quality in every language</h2>
+<p><code>handnet.text_quality.HandNet</code> scores a document 0–100 for pretraining-filter quality: markup, mojibake, repetition,
+shouting, tables, logs, navigation fragments. Its "tokenizer" is 40 per-character Unicode attributes — letter, case, digit,
+punctuation class, script group, mojibake markers — so no weight knows any word and the same 627 numbers score Swedish,
+Georgian, Japanese, Arabic, Hindi or Thai. Downstream: a width-5 convolution with 48 named pattern channels, a ReLU-RNN of
+run-length counters, pooling, and a four-layer MLP of 46 named penalty/reward detectors with point budgets
+(<code>-mojibake 35</code>, <code>-markup 20</code>, <code>+sentences 8</code>, …), length gates and script gates.</p>
+
+<h3>FineWeb-2: does it agree with a production filtering pipeline?</h3>
+<p>FineWeb-2 publishes, per language, the documents its filters kept and the ones they removed. 300 + 300 documents per
+language, AUC(kept &gt; removed). Grey bars: the strongest single-statistic baseline, the fraction of characters that are letters.
+Hover a bar for the numbers.</p>
+<div class="legend"><span><i style="background:var(--blue)"></i>HandNet</span><span><i style="background:var(--grid)"></i>letter fraction</span><span>dashed: mean {{MEAN_AUC}}</span></div>
+{{FW_SVG}}
+<div class="scroll">
+<table>
+<thead><tr><th>language</th><th>HandNet</th><th>length</th><th>letters</th><th>words</th><th>avg word</th><th>kept mean</th><th>removed mean</th><th>removed &lt; 50</th><th>ms/doc</th></tr></thead>
+<tbody>
+{{FW_ROWS}}
+</tbody></table>
+</div>
+<p><small>Blue: HandNet beats every baseline; orange: a baseline wins. Thai is the one loss — no sentence punctuation, no word
+spaces, so most structure detectors are gated off. FineWeb-2's decisions are themselves rule-based, so this measures agreement
+between two rule systems, not ground truth.</small></p>
+
+<figure><img src="figures/fineweb2_hist.png" alt="Score histograms of kept vs removed documents for six scripts" loading="lazy">
+<figcaption>Kept documents cluster near 95; removed ones spread over the whole range. With a threshold at 50 essentially no kept
+document is rejected in any language.</figcaption></figure>
+
+<h3>Ablation: which detectors matter?</h3>
+<div class="two">
+<div class="scroll"><table><thead><tr><th>variant</th><th>mean AUC</th><th>Δ</th><th>worst language</th></tr></thead><tbody>
+{{AB_ROWS}}
+</tbody></table></div>
+<div><p>Only the <b>formatting</b> group (line breaks mid-sentence, bullet lines, space before punctuation, ellipses) carries
+real weight: without it the mean drops from {{AB_FULL}} to 0.858 and Thai collapses to 0.69. The other groups are nearly
+redundant here, and switching off the <b>rewards</b> or the <b>tokens</b> group slightly <i>improves</i> agreement. An honest
+negative result for the design method: several detectors that are easy to justify (shouting, digit runs, giant tokens)
+contribute nothing measurable on this benchmark.</p>
+<p><b>What it cannot do:</b> grammar. On minimal pairs differing by one inflection or a swapped word it is at chance — a
+character-level net with hand-set weights has no morphology and no word order. It is the cheap first filter.</p></div>
+</div>
+
+<h2 id="mnist">2 · MNIST without the training</h2>
+<p><code>handnet.mnist_holes.MNISTNet</code> classifies digits with five hand-drawn 5×5 kernels (ink, horizontal, vertical, / and \),
+a <b>recurrent hole finder</b> that floods the background from the border so that whatever is never reached is a loop
+(the inside of a 0, 6, 8, 9), zone pooling over a 5×5 grid, each digit <b>drawn by hand as 5×5 ASCII-art sketches</b> per channel
+(a sketch is a prototype: its unit computes <i>W·x − ½‖W‖²</i>, minus the squared distance to the drawing), and 29 named
+evidence units (<code>four:open_top</code>, <code>bottom_bar</code>, <code>hole:top_only</code>, …) that vote.</p>
+
+<figure><img src="figures/holes_mnist_pipeline.png" alt="Three digits through the network: input, five conv channels, hole map" loading="lazy">
+<figcaption>Three test digits through the net: input, the five conv channels, the enclosed-background map. Note the 8 whose lower
+loop did not close — the single most common error.</figcaption></figure>
+
+<h3>The sketches are the weights</h3>
+<p>Ink and hole sketches, as they appear in the source (<code>#</code> strong, <code>+</code> some, <code>.</code> little,
+<code>-</code> must be empty). The four stroke channels have their own set.</p>
+{{SKETCHES}}
+<figure><img src="figures/holes_mnist_sketches.png" alt="All 60 sketches rendered as 5x5 images" loading="lazy"><figcaption>All sixty sketches, one per digit and channel.</figcaption></figure>
+
+<h3>Test set, scored once</h3>
+<div class="two">
+<div class="scroll"><table><thead><tr><th>true \ pred</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>acc</th></tr></thead><tbody>
+{{CM_ROWS}}
+</tbody></table></div>
+<div><p><b>{{MN_ACC}}%</b> on the 10,000 test images. Majority class {{MN_MAJ}}%; a <i>trained</i> nearest-class-mean classifier on
+raw pixels (fit on 20,000 training images) gets {{MN_NM}}%; a trained convnet gets 99%+. The design was iterated on the first
+5,000 training images (a held-out training slice gives 82.8%, so the hand tuning did not overfit).</p>
+<p>Top confusions: {{CONF}}. They are what a 5×5 sketch should get wrong: loops that did not close (8→9, 9→4), closed-top
+4s (4→9), and the 5/3/7 family where a 5 with a short roof is a 3 with a corner.</p></div>
+</div>
+
+<h3>Which evidence fires, per true digit (% of test images)</h3>
+<div class="scroll"><table><thead><tr><th>unit</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead><tbody>
+{{UNIT_ROWS}}
+</tbody></table></div>
+<p><small><code>hole:none</code> fires on 99% of 1s, 3s, 5s and 7s — and on 26% of 9s and 37% of 6s, which is where the
+accuracy goes.</small></p>
+
+<h2 id="demo">3 · Live demo</h2>
+<p>These run the <em>actual Python package</em> in your browser through <a href="https://pyodide.org">Pyodide</a> (NumPy, ~10 MB,
+loaded once on first use). Nothing is sent anywhere.</p>
+<div class="demo">
+<div class="row"><button id="load">Load the networks</button><span class="status" id="status">not loaded</span></div>
+<h3 style="margin-top:14px">Score a text</h3>
+<textarea id="txt">Chur har varit bebodd sedan förromersk tid. Curia Raetorum var den romerska bosättningen. Den blev 451 biskopssäte. Den nuvarande domkyrkan färdigställdes 1272. Medan staden Chur blev protestantisk under reformationen förblev biskopshovet en katolsk enklav.</textarea>
+<div class="row">
+  <button id="score" disabled>Score</button>
+  <button class="ghost ex" data-k="moji">mojibake</button>
+  <button class="ghost ex" data-k="html">html</button>
+  <button class="ghost ex" data-k="table">table</button>
+  <button class="ghost ex" data-k="jpn">日本語</button>
+  <button class="ghost ex" data-k="ara">العربية</button>
+  <button class="ghost ex" data-k="kat">ქართული</button>
+</div>
+<div class="out" id="txtout">—</div>
+<h3 style="margin-top:22px">Draw a digit</h3>
+<div class="row" style="align-items:flex-start">
+  <canvas id="pad" width="224" height="224"></canvas>
+  <div>
+    <div class="row"><button id="classify" disabled>Classify</button><button class="ghost" id="clear">Clear</button></div>
+    <canvas id="thumb" width="28" height="28"></canvas>
+    <div class="status">what the net sees (centred by mass, 20×20 box, like MNIST)</div>
+  </div>
+</div>
+<div class="out" id="mnout">—</div>
+</div>
+
+<h2 id="making">4 · How this was made</h2>
+<p>Both networks were written by Claude (Anthropic's Claude Fable 5.1) in conversation with Birger Moëll, who set the tasks,
+the rule and the standard of evidence. The text net was written first as the cheap pre-filter of a multilingual data-quality
+pipeline for the OpenEuroLLM languages; this repo lifts it out and adds the MNIST net, the evaluations, the paper and this
+page, all in one session on 4 November 2026.</p>
+<p><b>The rule.</b> A weight may be set by <i>reasoning</i> ("clean prose has about one sentence end per hundred characters",
+"a 4 has an empty top centre") and <i>checked</i> against data, but never <i>fit</i> to data: no gradients, no optimiser, no
+search over weight values. Every non-zero weight is in the source next to the unit it belongs to.</p>
+<p><b>What "checked" meant.</b> Text: a handful of hand-written prose and junk examples in five scripts (now the tests), and reading
+the worst-scored FineWeb-2 documents to see which detector was wrong. MNIST: class-conditional means of the zone features on
+5,000 training images to put each threshold at the knee between a digit and its neighbours; sketches drawn from how the average
+digit looks at 5×5; about a dozen rounds of "look at the confusion matrix, which unit is to blame, adjust its votes". The test set
+was scored once.</p>
+<p><b>Why it is a network and not a rule engine.</b> Everything is matrix products, ReLUs and one recurrence; <code>to_torch()</code>
+returns an <code>nn.Module</code> with the same tensors, and the tests check it matches NumPy to 1e-3. Which also means the obvious
+next experiment — fine-tune from a designed initialisation — is one line away. This repo deliberately does not run it.</p>
+<pre><code>pip install git+https://github.com/BirgerMoell/handnet
+python -m pytest -q tests
+python examples/text_quality/eval_fineweb2.py --out examples/text_quality/fineweb2_results.json
+python examples/mnist/eval_mnist_holes.py --out examples/mnist/mnist_holes_results.json</code></pre>
+
+<div class="foot">Birger Moëll &amp; Claude, 2026 · MIT · <a href="https://github.com/BirgerMoell/handnet">github.com/BirgerMoell/handnet</a> · <a href="handnet.pdf">paper</a></div>
+</main>
+
+<script>
+// ---- hover tooltips on the AUC chart
+const tip=document.getElementById('tip');
+document.querySelectorAll('svg.auc g.bar').forEach(g=>{
+  g.addEventListener('mousemove',e=>{tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY+12)+'px';
+    tip.textContent=g.dataset.lang+'  HandNet '+g.dataset.auc+'  ·  letter fraction '+g.dataset.base;});
+  g.addEventListener('mouseleave',()=>tip.style.display='none');
+});
+// ---- examples
+const EX={moji:"Vi Ã¤r glada att kunna meddela att fÃ¶retaget nu Ã¶ppnar ett nytt kontor i GÃ¶teborg. Det Ã¤r ett stort steg fÃ¶r oss, sÃ¤ger VD:n i ett pressmeddelande. â€Vi ser fram emot att vÃ¤xa.â€",
+html:"<div class=\"nav\"><ul><li><a href=\"/home\">Home</a></li><li><a href=\"/about\">About</a></li></ul></div><script>var x = {a: 1, b: [2,3]};<\/script><p>&nbsp;</p>",
+table:"| id | name | value |\n|----|------|-------|\n| 1 | foo | 3.14 |\n| 2 | bar | 2.71 |\n| 3 | baz | 1.41 |",
+jpn:"東京都は日本の首都であり、関東地方に位置する。人口は約千四百万人で、日本で最も人口の多い都道府県である。江戸時代には徳川幕府の本拠地として栄え、明治維新の後に東京と改称された。現在は政治、経済、文化の中心地として、世界有数の大都市のひとつに数えられている。",
+ara:"القاهرة هي عاصمة جمهورية مصر العربية وأكبر مدنها. تقع المدينة على ضفاف نهر النيل في شمال البلاد. تأسست القاهرة في القرن العاشر الميلادي على يد الفاطميين، وأصبحت منذ ذلك الحين مركزاً سياسياً وثقافياً مهماً في العالم العربي.",
+kat:"თბილისი საქართველოს დედაქალაქი და უდიდესი ქალაქია. იგი მდებარეობს მდინარე მტკვრის ორივე ნაპირზე. ქალაქი დაარსდა მეხუთე საუკუნეში მეფე ვახტანგ გორგასლის მიერ. თბილისი საუკუნეების განმავლობაში იყო მნიშვნელოვანი სავაჭრო ცენტრი აბრეშუმის გზაზე."};
+document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{document.getElementById('txt').value=EX[b.dataset.k];if(py)score();});
+// ---- pyodide
+let py=null;const status=document.getElementById('status');
+async function loadPy(){
+  const btn=document.getElementById('load');btn.disabled=true;status.textContent='loading Pyodide…';
+  try{
+    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';
+    await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    py=await loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/'});
+    status.textContent='loading NumPy…';await py.loadPackage('numpy');
+    status.textContent='loading handnet…';
+    py.FS.mkdir('/handnet');
+    for(const f of ['__init__.py','text_quality.py','mnist_holes.py']){const r=await fetch('py/'+f);py.FS.writeFile('/handnet/'+f,await r.text());}
+    await py.runPythonAsync(`import sys, json; sys.path.insert(0,'/')
+import numpy as np
+from handnet.text_quality import HandNet
+from handnet.mnist_holes import MNISTNet
+TNET=HandNet(); MNET=MNISTNet()
+def score_text(t):
+    return json.dumps(TNET.explain(t), ensure_ascii=False)
+def classify(flat):
+    x=np.array(flat.to_py(),dtype=np.float32).reshape(28,28)
+    ex=MNET.explain(x, top=3)
+    return json.dumps(ex, ensure_ascii=False)`);
+    status.textContent='ready — text net: 100,331 params (627 non-zero); MNIST net: {{MN_PARAMS}} ({{MN_NZ}} non-zero)';
+    document.getElementById('score').disabled=false;document.getElementById('classify').disabled=false;score();
+  }catch(e){status.textContent='could not load Pyodide: '+e;btn.disabled=false;}
+}
+document.getElementById('load').onclick=loadPy;
+function score(){
+  const t=document.getElementById('txt').value;const ex=JSON.parse(py.globals.get('score_text')(t));
+  let s='<span class="score">'+ex.score+'</span>  / 100   (base '+ex.base+')\n';
+  const keys=Object.keys(ex).filter(k=>k!=='score'&&k!=='base').sort((a,b)=>Math.abs(ex[b])-Math.abs(ex[a]));
+  for(const k of keys)s+=(k[0]==='+'?'<span style="color:var(--aqua)">':'<span style="color:var(--orange)">')+k.padEnd(24)+(k[0]==='+'?'+':'−')+ex[k]+'</span>\n';
+  if(!keys.length)s+='(no detector fired)';
+  document.getElementById('txtout').innerHTML=s;
+}
+document.getElementById('score').onclick=score;
+// ---- drawing pad
+const pad=document.getElementById('pad'),ctx=pad.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,224,224);
+ctx.lineWidth=18;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#fff';let drawing=false,last=null;
+function pos(e){const r=pad.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return [(p.clientX-r.left)*224/r.width,(p.clientY-r.top)*224/r.height];}
+function down(e){drawing=true;last=pos(e);e.preventDefault();}
+function move(e){if(!drawing)return;const p=pos(e);ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p;e.preventDefault();}
+function up(){drawing=false;}
+pad.addEventListener('mousedown',down);pad.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+pad.addEventListener('touchstart',down,{passive:false});pad.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+document.getElementById('clear').onclick=()=>{ctx.fillStyle='#000';ctx.fillRect(0,0,224,224);document.getElementById('mnout').textContent='—';
+  document.getElementById('thumb').getContext('2d').clearRect(0,0,28,28);};
+function preprocess(){
+  // MNIST-style: crop the ink, scale the longer side to 20 px, paste into 28x28 centred by centre of mass
+  const im=ctx.getImageData(0,0,224,224).data;const g=new Float32Array(224*224);
+  let x0=224,x1=-1,y0=224,y1=-1;
+  for(let y=0;y<224;y++)for(let x=0;x<224;x++){const v=im[(y*224+x)*4]/255;g[y*224+x]=v;if(v>0.1){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+  if(x1<0)return null;
+  const w=x1-x0+1,h=y1-y0+1,sc=20/Math.max(w,h),tw=Math.max(1,Math.round(w*sc)),th=Math.max(1,Math.round(h*sc));
+  const tmp=document.createElement('canvas');tmp.width=tw;tmp.height=th;const tc=tmp.getContext('2d');
+  tc.drawImage(pad,x0,y0,w,h,0,0,tw,th);const td=tc.getImageData(0,0,tw,th).data;
+  const small=new Float32Array(tw*th);let m=0,mx=0,my=0;
+  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){const v=td[(y*tw+x)*4]/255;small[y*tw+x]=v;m+=v;mx+=v*x;my+=v*y;}
+  mx/=m;my/=m;const ox=Math.round(14-mx),oy=Math.round(14-my);
+  const out=new Float32Array(784);
+  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){const X=x+ox,Y=y+oy;if(X>=0&&X<28&&Y>=0&&Y<28)out[Y*28+X]=small[y*tw+x];}
+  const th2=document.getElementById('thumb'),c2=th2.getContext('2d'),id=c2.createImageData(28,28);
+  for(let i=0;i<784;i++){const v=Math.round(out[i]*255);id.data[i*4]=v;id.data[i*4+1]=v;id.data[i*4+2]=v;id.data[i*4+3]=255;}
+  c2.putImageData(id,0,0);return out;
+}
+document.getElementById('classify').onclick=()=>{
+  const flat=preprocess();if(!flat){document.getElementById('mnout').textContent='draw something first';return;}
+  const ex=JSON.parse(py.globals.get('classify')(Array.from(flat)));
+  let s='<span class="score">'+ex.prediction+'</span>   logits: '+ex.logits.map(([d,v])=>d+': '+v).join('   ')+'\n';
+  for(const [d] of ex.logits){s+='\nevidence for '+d+':\n';for(const [u,v] of ex['evidence_for_'+d])s+='  '+(v>0?'<span style="color:var(--aqua)">':'<span style="color:var(--orange)">')+u.padEnd(26)+(v>0?'+':'')+v+'</span>\n';}
+  document.getElementById('mnout').innerHTML=s;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+% Discussion paragraphs from the mnist_holes / 33-language thread; additive to discussion.tex.
+\subsection{What reasoning buys, and where it runs out}
+\paragraph{What reasoning buys.} The text-quality and hole-finder networks were written in a few hours of
+conversation and have no training cost, and both land at the level of the classical
+hand-engineered baselines for their tasks: the text gate reproduces most of a production
+filtering pipeline's decisions across 33 languages, and the second digit classifier beats a trained prototype classifier. Both are entirely legible: every score decomposes into named
+contributions, which is what a data engineer wants from a filter (``why was this document
+dropped?'') and what makes the error analyses above possible without any probing.
+
+\paragraph{Where reasoning runs out.} The failures are informative. The text network
+cannot see grammar, because that needs a representation of words and their order, which
+no amount of character-level reasoning produces; and the 33-language ablation shows that
+several detectors that are easy to justify contribute nothing measurable. The digit
+network's ceiling is set by the resolution of what a person can specify: a $5\times5$
+sketch cannot say ``the loop must close'', and the hole finder cannot close a loop the
+writer left open. A trained network learns the fine stroke-topology statistics that fill
+that gap, and that is exactly the part of the task a designer cannot write down.
+
+\paragraph{Fine-tuning from a designed initialisation.} Because these are ordinary networks
+with PyTorch exports (\texttt{to\_torch()}, checked against NumPy in the tests), the
+obvious next experiment is to use them as initialisations: does a network that starts
+from named, correct detectors train faster, need fewer labels, or stay legible? The
+repository deliberately does not run that experiment yet, so that the reported numbers
+are those of the hand-written weights alone.
+
+\paragraph{On process.} The weights were written by a language model in conversation with
+the first author, who set the tasks, the rule (reason and check, never fit) and the
+standard of evidence. We think this is worth stating because it bears on what the result
+means: the design knowledge in these networks is the kind that can be articulated---what
+mojibake looks like, where a 4 is empty---and a system that can articulate it can also
+write it into weights. The repository documents the process, including the development
+log of Section~\ref{sec:tq-devlog} and the iteration on training-set confusion matrices
+for MNIST, so that the line between ``reasoned'' and ``fit'' is visible to the reader.
+

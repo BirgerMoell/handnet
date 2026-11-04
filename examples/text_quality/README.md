@@ -93,3 +93,56 @@ python -m pytest -q tests/test_text_quality.py
 python examples/text_quality/bench.py
 python examples/text_quality/eval_fineweb2.py --show --out examples/text_quality/fineweb2_results.json
 ```
+
+## 33 languages, baselines and ablation (added 2026-11-04)
+
+`eval_fineweb2.py` now runs 33 languages across eleven scripts, with single-statistic baselines scored on the
+same documents (`fineweb2_results.json`), and `ablate_groups.py` repeats the leave-one-group-out ablation over
+all of them including mixed scripts and rewards (`ablation_results.json`).
+
+```bash
+python examples/text_quality/eval_fineweb2.py --out examples/text_quality/fineweb2_results.json
+python examples/text_quality/ablate_groups.py --out examples/text_quality/ablation_results.json
+```
+
+| language | HandNet AUC | length | letter frac. | word frac. | kept mean | removed mean | ms/doc |
+|---|---|---|---|---|---|---|---|
+| swe_Latn | **0.928** | 0.671 | 0.821 | 0.882 | 95.2 | 68.8 | 7.1 |
+| dan_Latn | **0.940** | 0.657 | 0.729 | 0.803 | 95.3 | 66.5 | 5.5 |
+| nob_Latn | **0.879** | 0.593 | 0.696 | 0.783 | 94.8 | 71.7 | 6.2 |
+| fin_Latn | **0.941** | 0.696 | 0.826 | 0.861 | 97.4 | 64.8 | 8.3 |
+| deu_Latn | **0.901** | 0.628 | 0.707 | 0.849 | 95.6 | 74.1 | 7.8 |
+| nld_Latn | **0.924** | 0.638 | 0.734 | 0.846 | 94.8 | 68.8 | 6.1 |
+| fra_Latn | **0.865** | 0.659 | 0.659 | 0.805 | 94.1 | 74.2 | 7.4 |
+| spa_Latn | **0.882** | 0.651 | 0.708 | 0.787 | 94.2 | 74.3 | 10.1 |
+| ita_Latn | **0.816** | 0.650 | 0.650 | 0.722 | 93.1 | 76.4 | 6.9 |
+| por_Latn | **0.903** | 0.637 | 0.720 | 0.770 | 94.0 | 67.0 | 7.6 |
+| pol_Latn | **0.934** | 0.643 | 0.815 | 0.818 | 95.4 | 64.5 | 7.5 |
+| ces_Latn | **0.932** | 0.675 | 0.801 | 0.852 | 95.1 | 62.3 | 6.8 |
+| hun_Latn | **0.933** | 0.705 | 0.780 | 0.854 | 96.3 | 64.4 | 8.0 |
+| ron_Latn | **0.904** | 0.631 | 0.759 | 0.836 | 93.6 | 68.7 | 8.8 |
+| tur_Latn | **0.901** | 0.604 | 0.764 | 0.780 | 94.5 | 70.5 | 7.8 |
+| vie_Latn | **0.958** | 0.698 | 0.866 | 0.915 | 92.9 | 63.7 | 10.4 |
+| ind_Latn | **0.885** | 0.631 | 0.815 | 0.796 | 95.3 | 75.3 | 8.8 |
+| swh_Latn | **0.976** | 0.736 | 0.885 | 0.902 | 92.2 | 44.8 | 7.7 |
+| rus_Cyrl | **0.881** | 0.607 | 0.733 | 0.805 | 95.9 | 75.8 | 9.3 |
+| ukr_Cyrl | **0.923** | 0.668 | 0.807 | 0.853 | 95.7 | 64.7 | 11.8 |
+| bul_Cyrl | **0.946** | 0.668 | 0.819 | 0.873 | 96.0 | 66.9 | 9.2 |
+| ell_Grek | **0.875** | 0.646 | 0.767 | 0.854 | 94.1 | 69.6 | 8.6 |
+| kat_Geor | **0.949** | 0.697 | 0.827 | 0.858 | 95.2 | 58.4 | 7.8 |
+| hye_Armn | **0.945** | 0.534 | 0.769 | 0.763 | 93.5 | 57.0 | 8.8 |
+| arb_Arab | **0.883** | 0.612 | 0.771 | 0.832 | 88.6 | 64.4 | 8.7 |
+| heb_Hebr | **0.947** | 0.643 | 0.846 | 0.886 | 93.0 | 58.6 | 8.6 |
+| hin_Deva | **0.857** | 0.604 | 0.656 | 0.733 | 91.9 | 71.3 | 6.7 |
+| ben_Beng | **0.831** | 0.599 | 0.748 | 0.775 | 93.8 | 74.6 | 9.4 |
+| tam_Taml | **0.889** | 0.682 | 0.904 | 0.881 | 96.0 | 73.6 | 10.1 |
+| tha_Thai | **0.899** | 0.571 | 0.955 | 0.862 | 85.6 | 64.3 | 8.0 |
+| jpn_Jpan | **0.896** | 0.533 | 0.850 | 0.749 | 90.8 | 61.3 | 5.3 |
+| kor_Hang | **0.918** | 0.492 | 0.752 | 0.850 | 80.4 | 41.5 | 4.6 |
+| cmn_Hani | **0.900** | 0.559 | 0.832 | 0.709 | 91.1 | 62.2 | 4.3 |
+| **mean (33)** | **0.907** | 0.634 | 0.781 | 0.823 | | | |
+
+The letter fraction alone is a strong baseline (mean 0.78); Thai is the one language where it beats the network
+(no sentence punctuation, no word spaces, so most structure detectors are gated off). Ablation over 33 languages:
+only the *formatting* group matters much (0.907 → 0.858 without it; Thai 0.90 → 0.69); removing *rewards* or
+*tokens* slightly improves the AUC (+0.006, +0.002).

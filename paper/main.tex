@@ -6,7 +6,7 @@
 \hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black}
 
 \title{handnet: Neural Networks with Hand-Written Weights}
-\author{Birger Mo\"ell\\ Uppsala University, KTH, AI Sweden}
+\author{Birger Mo\"ell\\ Uppsala University, KTH, AI Sweden \and Claude\\ Anthropic (wrote the weights and code, in conversation with the first author)}
 \date{Draft, November 2026}
 
 \begin{document}
@@ -21,12 +21,20 @@ weight is placed by reasoning about the task; the vast majority of the budget st
 We describe a small toolbox of constructions (pattern kernels, first-of-run counting,
 run-length counters as a ReLU recurrence with a closed form, capped detectors from ReLU
 pairs, $\min$ gates, count-then-threshold) that lets ordinary task knowledge be written
-directly as weights, and we report experiments on a multilingual text-quality network of
-100{,}331 parameters (627 non-zero) that reaches AUC 0.86--0.95 at separating kept from
-removed FineWeb-2 documents across eight scripts without having seen a document. We
-discuss where the approach stops (knowledge that cannot be articulated in the input
-features, such as morphology), and how designed networks relate to trained ones as
-initialisations, baselines and specifications.
+directly as weights, and we report experiments on four networks across three tasks. A
+multilingual text-quality network of 100{,}331 parameters (627 non-zero) separates kept
+from removed FineWeb-2 documents with a mean AUC of 0.907 over 33 languages and eleven
+scripts (0.82--0.98) without having seen a document, beating single-statistic baselines
+in all but one language. An SST-2 sentiment network written blind reaches 78.6\,\%, and
+two MNIST designs reach 79.4\,\% (weights that are ASCII drawings, written blind with
+bounded revisions) and 83.3\,\% (hand-drawn stroke kernels, a recurrent hole finder,
+$5\times5$ sketches and named evidence units; above a trained nearest-class-mean
+classifier at 81.6\,\%). Label-matched trained baselines show where designed weights
+win and where a few hundred labels beat the best drawing. We discuss where the approach stops (knowledge that
+cannot be articulated in the input features, such as morphology or whether a loop
+closes), and how designed networks relate to trained ones as initialisations, baselines
+and specifications. Code, results and an in-browser demo are at
+\url{https://birgermoell.github.io/handnet/}.
 \end{abstract}
 
 \section{Introduction}
@@ -39,10 +47,24 @@ initialisations, baselines and specifications.
 %   (97.8% vs 94.6% at 8k labels). We ask how far this carries and how to do it by hand.
 
 \section{Related work}
-% TODO(paper thread): weight programming / "neural programs"; rule extraction from networks
-% (the reverse direction); hand-designed features in data filtering (Gopher rules, C4, FineWeb,
-% FineWeb-2); neural program synthesis; lottery tickets and sparsity; mechanistic
-% interpretability (we build what they reverse-engineer); language-agnostic text features.
+Hand-designed features with a learned classifier are the pre-deep-learning norm; here
+the classifier is hand-designed too. The closest precedents are the rule-based quality
+filters of large pretraining corpora---C4 \cite{raffel2020t5}, Gopher \cite{rae2021gopher},
+FineWeb and FineWeb-2 \cite{penedo2024fineweb,penedo2025fineweb2}---whose rules (fraction
+of letters, mean word length, lines ending in punctuation, repetition ratios) our text
+network reimplements as network units with a shared scoring scheme and script gating.
+The starting observation for this work is a report that a language model asked to
+hand-write the weights of a 100k-parameter citation classifier used 3.8k non-zero
+weights and beat the trained version \cite{lauritzen2026fable}. Network ``circuits'' with
+interpretable weights are the object of mechanistic interpretability \cite{olah2020zoom};
+we build circuits forward instead of reverse-engineering them. Hand-set recurrent
+counters resemble the constructions used to show what RNNs can compute in principle
+\cite{weiss2018counter}, and our hole finder is a cellular-automaton flood fill written
+as a ReLU recurrence. MNIST \cite{lecun1998mnist} needs no introduction;
+template-matching and nearest-prototype classifiers are its oldest baselines, and our
+sketch units are nearest-prototype with prototypes drawn by hand. Sparse networks are
+usually obtained by pruning a trained one \cite{frankle2019lottery}; ours are sparse by
+construction, with the sparsity pattern carrying the design.
 
 \section{Method}
 \input{sections/method}
@@ -50,13 +72,15 @@ initialisations, baselines and specifications.
 
 \section{Experiments}
 \input{sections/text_quality}
+\input{sections/text_quality_33}
 \input{sections/sentiment}
 \input{sections/mnist}
-% \input{sections/ablations}
+\input{sections/mnist_holes}
 
 \section{Discussion and limits}
 \input{sections/discussion}
-% TODO(paper thread). Seeds:
+\input{sections/discussion_holes}
+% Seeds kept from the first draft:
 % - Grammar at chance: the input carries no morphology; this is a representational limit,
 %   not a tuning one. Designed nets are bounded by what the author can articulate in the features.
 % - Fluent machine-translated spam scores 95+: surface shape is all the network sees.
@@ -67,7 +91,14 @@ initialisations, baselines and specifications.
 % - Cost: ~7 ms/doc numpy, no GPU; ~1000x cheaper than a 0.3B judge.
 
 \section{Conclusion}
-% TODO(paper thread)
+Two ordinary networks, no training, every weight decided: a text-quality gate that agrees
+with FineWeb-2's filters at AUC 0.907 across 33 languages with 627 non-zero weights, and an
+MNIST classifier at 83.3\,\% built from hand-drawn kernels, a hole-finding recurrence and
+ten digits sketched on a $5\times5$ grid. Reasoning gets a network to the level of the
+classical hand-engineered baselines, makes every decision legible, and stops exactly where
+the task knowledge stops being articulable. That boundary is itself a result, and the
+networks are released as initialisations for anyone who wants to measure what training
+adds on top of design.
 
 \bibliographystyle{plain}
 \bibliography{refs}

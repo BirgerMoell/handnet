@@ -12,9 +12,10 @@ the approach carries.
 
 | Network | Task | Params | Non-zero | Headline result |
 |---|---|---|---|---|
-| [`handnet/text_quality.py`](handnet/text_quality.py) | text quality 0–100, any language | 100,331 | 627 | AUC 0.86–0.95 kept-vs-removed FineWeb-2 docs in 8 scripts |
+| [`handnet/text_quality.py`](handnet/text_quality.py) | text quality 0–100, any language | 100,331 | 627 | mean AUC **0.907** kept-vs-removed FineWeb-2 docs, 33 languages / 11 scripts (0.82–0.98) |
 | [`handnet/sentiment.py`](handnet/sentiment.py) | positive/negative, SST-2 | 9,146 | 1,567 | **78.6%** test with 0 labels seen, 79.2% after one revision; beats logistic regression trained on 2,048 sentences |
 | [`handnet/mnist.py`](handnet/mnist.py) | handwritten digits | 28,234 | 662 ink pixels | 55.4% blind, **79.4%** after two revisions ≈ a classifier trained on 200 images — here training wins |
+| [`handnet/mnist_holes.py`](handnet/mnist_holes.py) | handwritten digits, second design: stroke kernels + recurrent hole finder + 5×5 sketches + named evidence | 21,772 | 2,411 | **83.3%** test; thresholds and votes set by hand after reading feature means and confusion matrices on 5,000 training images (not blind); beats a trained nearest-class-mean (81.6%) |
 
 ![Designed vs trained, per label](docs/assets/label_efficiency.png)
 
@@ -23,6 +24,9 @@ The sentiment and MNIST networks were written by Claude Fable 5.1 under a strict
 trained baselines at matched label counts). Hand-writing wins where the features are
 *nameable* (words, negation, markup, mojibake) and loses where they are statistical
 regularities in pixel space. See [METHOD.md §7](METHOD.md#7-the-protocol-for-a-fair-comparison-with-training).
+
+Site with all results and a live in-browser demo of the text and digit networks: **https://birgermoell.github.io/handnet/** ·
+paper: [`paper/main.pdf`](docs/handnet.pdf).
 
 More networks are being added; see [COORDINATION.md](COORDINATION.md) for what is in
 progress and how to add one.
@@ -49,8 +53,24 @@ print(net.n_params, net.n_nonzero)                    # 100331 627
 print(net.score("Hunden springer i parken. Den är glad och leker."))
 print(net.explain("<div><ul><li>Home</li></ul></div> |||| ===="))
 # {'score': 24.7, 'base': 72.0, '-markup': 20.0, '-few_letters': 11.3, ...}
+
+from handnet.mnist_holes import MNISTNet
+import numpy as np
+img = np.zeros((28, 28)); img[5:23, 13:16] = 1.0          # a vertical bar
+print(MNISTNet().predict(img), MNISTNet().explain(img))   # 1, with the evidence
 EOF
 ```
+
+## How this repo was made
+
+Both networks were written by Claude (Anthropic's Claude Fable 5.1) in conversation with Birger Moëll, who
+set the tasks, the rule and the standard of evidence, across several parallel threads on 4 November 2026
+(see `COORDINATION.md`). **The rule:** a weight may be set by *reasoning* ("clean prose has about one sentence
+end per hundred characters", "a 4 has an empty top centre") and *checked* against data, but never *fit* to
+data — no gradients, no optimiser, no search over weight values. Every non-zero weight is in the source next
+to the unit it belongs to, and each network's example README states exactly what "checked against data"
+meant for it (for MNIST: class-conditional feature means and confusion matrices on 5,000 training images;
+test set scored once). `METHOD.md` is the how-to for writing your own.
 
 ## Why hand-written weights?
 

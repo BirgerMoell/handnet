@@ -6,15 +6,18 @@ Ordinary architectures — embeddings, convolutions, ReLU recurrences, MLPs — 
 non-zero weight placed by reasoning about the task. Readable, auditable, deterministic,
 data-free, and still a real network you can export to PyTorch and fine-tune.
 
-[Source on GitHub](https://github.com/BirgerMoell/handnet) · [Method](method.html) · [Paper](https://github.com/BirgerMoell/handnet/tree/main/paper)
+[Source on GitHub](https://github.com/BirgerMoell/handnet) · [Method](method.html) · [All results & live demo](results.html) · [Paper (PDF)](handnet.pdf)
 
 ## Networks
 
 | Network | Task | Params | Non-zero | Result |
 |---|---|---|---|---|
-| [Text quality](text_quality.html) | 0–100 quality score, any language or script | 100,331 | 627 | AUC 0.86–0.95 on FineWeb-2 kept vs removed, 8 scripts |
+| [Text quality](text_quality.html) | 0–100 quality score, any language or script | 100,331 | 627 | mean AUC **0.907** on FineWeb-2 kept vs removed, 33 languages (0.82–0.98) |
 | [Sentiment](sentiment.html) | positive / negative, SST-2 | 9,146 | 1,567 | 78.6% test with 0 labels seen (79.2% after one revision); beats a logistic regression trained on 2,048 sentences |
 | [MNIST](mnist.html) | handwritten digits | 28,234 | 662 (ink pixels) | 55.4% blind, 79.4% after two revisions — worth ≈ 200 labelled images; here training wins |
+| [MNIST, hole-finder design](mnist_holes.html) | handwritten digits, second design | 21,772 | 2,411 | **83.3%** test; tuned by hand on 5,000 training images (not blind); above a trained nearest-class-mean (81.6%) |
+
+The text and digit networks run live in your browser on the [results page](results.html#demo): paste a text, or draw a digit.
 
 ## Designed vs trained, per label
 

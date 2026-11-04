@@ -43,7 +43,7 @@ $h_t = S_t - \min(0,\min_{k\le t} S_k)$ with $S$ the cumulative sum of $u$
 (the Lindley recursion), so inference is vectorised; the step-by-step
 recurrence is used for the PyTorch export and the two are tested to agree.
 
-\paragraph{Capped detectors.} A penalty that rises from $0$ at threshold $a$
+\paragraph{Capped detectors.}\label{sec:method-capped} A penalty that rises from $0$ at threshold $a$
 to its full value at $b$ and saturates is $\min(\mathrm{relu}(x),1) =
 \mathrm{relu}(x) - \mathrm{relu}(x-1)$ with $x$ an affine function of the
 pooled features scaled so that $x=1$ is ``fully bad''. The next layer multiplies

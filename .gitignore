@@ -7,3 +7,9 @@ paper/*.out
 paper/*.toc
 paper/*.bbl
 paper/*.blg
+paper/*.fls
+paper/*.fdb_latexmk
+paper/main.pdf
+examples/mnist/data/
+*.npz
+paper/*.synctex.gz
