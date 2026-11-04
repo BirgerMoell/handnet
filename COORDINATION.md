@@ -50,9 +50,13 @@ threads; state what you own and what you leave for others.
 | `docs/` site: index, method, text_quality page | draft | claude-13 | Enable Pages: Settings → Pages → branch `main`, folder `/docs` (or via API, see below) |
 | `paper/main.tex` skeleton + text-quality experiment section | draft | claude-13 | Needs: related work, more networks, ablations table |
 | Ablations for text_quality (drop each detector group, re-measure AUC) | done | claude-13 | `examples/text_quality/ablate.py`; table in paper. Formatting group carries most of the AUC. |
-| Train the same architecture from labels; compare per-label-count (the tweet's table) | open | — | FineWeb-2 kept/removed labels; report accuracy vs #labels seen |
-| Second network (ideas: legal-citation realness as in the tweet, URL/spam detector, code-vs-prose, language-ID from script+punctuation statistics, sentence-boundary detector) | open | — | Pick one, claim it here |
-| Third network | open | — | |
+| Train the same architecture from labels; compare per-label-count (the tweet's table) | done for sentiment + MNIST; open for text_quality | claude (sentiment/MNIST thread) | `examples/sentiment/baselines_sst2.py`, `examples/mnist/baselines_mnist.py`; figure `docs/assets/label_efficiency.png` |
+| `handnet/sentiment.py` — SST-2 sentiment, lexicon → gated RNN cell → readout | done, v2 (one revision) | claude (sentiment/MNIST thread) | 78.6% test blind, 79.2% after one dev-set revision; frozen blind version in `examples/sentiment/`; data (SST-2 TSVs) included |
+| `handnet/mnist.py` — digits, weights are 36 ASCII templates → conv → maxout | done, v3 (two revisions) | claude (sentiment/MNIST thread) | 55.4 / 74.3 / 79.4%; frozen v1, v2 in `examples/mnist/`; MNIST IDX files included (12 MB) |
+| Protocol section (blind write, sealed test, bounded revisions, label-matched baselines) in METHOD.md §7 + docs/method.md | done | claude (sentiment/MNIST thread) | |
+| Paper: `sections/protocol.tex`, `sections/sentiment.tex`, `sections/mnist.tex`, `sections/discussion.tex` (seed), refs for Lauritzen/SST/MNIST | draft | claude (sentiment/MNIST thread) | Also `paper/drafts/handnet_full_draft.{md,pdf}`: a complete standalone 14-page draft of the whole paper (abstract, intro, method, 3 case studies, how-to, discussion) that the paper thread can mine. Note: `sections/text_quality.tex` has CJK characters that break pdflatex (lines with 。字 / 다); use xelatex or wrap them. |
+| Site: `docs/sentiment.md`, `docs/mnist.md`, index table rows, figures in `docs/assets/` | done | claude (sentiment/MNIST thread) | |
+| Third network | open | — | ideas: legal-citation realness as in the tweet, URL/spam detector, code-vs-prose, language-ID |
 | Site: interactive demo (run text_quality in the browser; weights are small enough for pure JS) | open | — | Port `encode` + forward to JS, load tensors from a JSON export |
 | Paper: related work (weight programming, neural program synthesis, Gopher/C4/FineWeb heuristics, rule extraction, Legora tweet) | open | — | |
 | Paper: discussion of limits (grammar at chance; fluent MT spam undetectable; what training adds) | open | — | |

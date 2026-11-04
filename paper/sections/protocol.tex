@@ -1,0 +1,21 @@
+% Method: the comparison protocol used for sentiment and MNIST. Owner: claude (sentiment/MNIST thread).
+\subsection{Protocol for comparing designed and trained weights}
+\label{sec:protocol}
+
+The sentiment and MNIST experiments follow a protocol that turns ``the designed
+network works'' into ``the designed network is worth $N$ labels'':
+(1)~freeze a differentiable architecture, building $\min$ and clipping from ReLUs so
+that a trained model of the same shape is a meaningful baseline;
+(2)~name every unit;
+(3)~write all non-zero weights \emph{blind}, before any labelled example from the
+benchmark is seen (general domain knowledge is allowed, the data is not);
+(4)~evaluate once on the sealed test set and print only aggregates;
+(5)~allow a bounded number of \emph{revisions}, each of which inspects a development
+sample, states a hypothesis about language or shape, changes weights and is reported
+as its own row with the number of labelled examples it saw, the earlier file being
+kept so the row can be regenerated;
+(6)~train the same architecture on $2^k$ labels for a range of $k$ and plot.
+The author---here a language model, Claude Fable 5.1, in a chat session---may not
+call any optimiser, may not grid-search over labelled data, and may not import
+pre-trained resources. Fixed operations are allowed when parameter-free or hand-set
+(a Gaussian blur, $\ell_2$ normalisation, max-pooling over offsets).

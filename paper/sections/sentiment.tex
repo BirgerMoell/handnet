@@ -1,0 +1,68 @@
+% Experiments: sentiment on SST-2. Owner: claude (sentiment/MNIST thread).
+\subsection{A 1.5k-parameter sentiment classifier for SST-2}
+\label{sec:sentiment}
+
+\paragraph{Task.} SST-2 is the binary Stanford Sentiment Treebank \cite{socher2013}:
+single movie-review sentences, lower-cased and pre-tokenised (\texttt{does n't}),
+labelled positive or negative. We use the GLUE split (6{,}919 train / 872 dev / 1{,}821
+test). It is hard for lexicon methods because of negation (``not a bad film at all''),
+contrast (``boring at first but ultimately moving'') and intensified negatives used
+as praise (``painfully funny'').
+
+\paragraph{Architecture.} Tokens $\to$ embedding $V\times6$ $\to$ a gated recurrent
+cell with state $[\,\mathrm{pos\_acc},\mathrm{neg\_acc},\mathrm{neg\_gate},
+\mathrm{int\_gate}\,]$ $\to$ $\mathrm{Linear}(4\to6)$, ReLU, $\mathrm{Linear}(6\to1)$,
+sigmoid. The six embedding axes are \emph{pos}, \emph{neg} (strengths 1--3),
+\emph{negator}, \emph{intensifier}, \emph{contrast} and \emph{hedge}; the embedding
+is therefore a typed sentiment lexicon of about 1{,}100 words. The cell is ten
+scalars, each a statement about English: the negation gate decays by $0.72$ per
+token (reaching about three words) and is cancelled by a following hedge (``not
+\emph{just} hilarious''); a contrast word multiplies the accumulated history by
+$0.35$; a word under negation is routed to the opposite accumulator at $0.65$
+(pos$\to$neg) or $0.75$ (neg$\to$pos) of its strength; intensifiers multiply by
+$1+\mathrm{int\_gate}$, hedges by $1-0.5\,\mathrm{hedge}$. All clipping is built from
+ReLUs. The readout's six units are net sentiment, net negativity, any positivity, any
+negativity, emotional mass and dangling negation, with output weights
+$[1.2,-1.2,0.15,-0.35,-0.05,-0.4]$ and bias $-0.15$ (the prior, stated before
+evaluation, that non-evaluative review sentences lean negative).
+$\|\theta\|_0 = 1{,}463$ blind, $1{,}567$ after revision.
+
+\paragraph{Protocol.} The weights were written blind, evaluated once on the sealed
+test set, then revised once after reading 45 development-set errors. Trained baselines
+(binary unigram+bigram counts; logistic regression and a 32-unit MLP, scikit-learn
+defaults) were fitted on random subsets of the training set.
+
+\begin{table}[h]\centering
+\begin{tabular}{lrrr}\toprule
+Weights & Labels seen & $\|\theta\|_0$ & Test acc.\\\midrule
+\textbf{Hand-written} & 0 & 1{,}463 & \textbf{78.6\%}\\
+\textbf{Hand-written, one revision} & 872 (dev) & 1{,}567 & \textbf{79.2\%}\\
+Trained logistic regression, uni+bigram & 512 & 9{,}525 & 64.2\%\\
+Trained MLP (32 hidden) & 512 & 304{,}832 & 65.3\%\\
+Trained logistic regression & 2{,}048 & 30{,}884 & 74.0\%\\
+Trained MLP & 2{,}048 & 988{,}320 & 75.2\%\\
+Trained logistic regression & 6{,}919 & 81{,}032 & 80.0\%\\
+Trained MLP & 6{,}919 & 2{,}593{,}056 & 81.9\%\\
+\bottomrule\end{tabular}
+\caption{SST-2 test accuracy (1{,}821 sentences). The blind network is worth about
+3{,}000 labelled sentences (Figure~\ref{fig:labels}).}
+\label{tab:sst2}
+\end{table}
+
+\paragraph{The revision.} Five changes, each a claim about language: (i)
+\emph{never}, \emph{nothing}, \emph{hardly} had been listed both as negators and as
+negative words, so ``never boring'' counted negative twice; (ii) the negation decay
+was raised from $0.55$ to $0.72$; (iii) the neg$\to$pos flip from $0.45$ to $0.75$
+after ``not a bad film at all'' scored $0.22$; (iv) the hedge-cancels-negation term
+was added; (v) about 100 lexicon entries were added (comparatives, horror-positive
+words such as \emph{creepiest}, review negatives such as \emph{familiar},
+\emph{tries}, and intensifier readings of \emph{painfully}, \emph{brutally}). Dev
+accuracy went $79.6\to81.4\%$, test $78.6\to79.2\%$; the gap between the two gains
+is the honest measure of dev-set overfitting.
+
+\paragraph{Where it stops.} The remaining errors are largely non-lexical: sentences
+with no evaluative word, topic words that look like sentiment (``a compelling anatomy
+of \emph{grief}'' is labelled negative), irony, and polarity carried by syntax (``what
+the director can't do is make either persona interesting''). A lexicon-and-gates
+network cannot represent the last two, which is why pretrained transformers reach
+95\%+ on this benchmark while the designed network stops near 80\%.

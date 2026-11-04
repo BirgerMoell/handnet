@@ -13,6 +13,20 @@ data-free, and still a real network you can export to PyTorch and fine-tune.
 | Network | Task | Params | Non-zero | Result |
 |---|---|---|---|---|
 | [Text quality](text_quality.html) | 0–100 quality score, any language or script | 100,331 | 627 | AUC 0.86–0.95 on FineWeb-2 kept vs removed, 8 scripts |
+| [Sentiment](sentiment.html) | positive / negative, SST-2 | 9,146 | 1,567 | 78.6% test with 0 labels seen (79.2% after one revision); beats a logistic regression trained on 2,048 sentences |
+| [MNIST](mnist.html) | handwritten digits | 28,234 | 662 (ink pixels) | 55.4% blind, 79.4% after two revisions — worth ≈ 200 labelled images; here training wins |
+
+## Designed vs trained, per label
+
+![Label efficiency](assets/label_efficiency.png)
+
+Dashed red lines are the hand-written networks; curves are the same architectures *trained* on
+increasing numbers of labels. On sentiment the blind network is worth about 3,000 labelled
+sentences. On MNIST the best hand-drawn network is worth about 200 and the trained curve keeps
+climbing. The difference is whether the discriminative features are *nameable*: sentiment words,
+negation and markup are; the pixels that separate a 3 from a 5 are not. The protocol for making
+this comparison — blind write, sealed test set, bounded revisions each reported with the labels it
+looked at, trained baselines at matched label counts — is in [Method, section 7](method.html#7-the-protocol-for-a-fair-comparison-with-training).
 
 ## The idea in one example
 

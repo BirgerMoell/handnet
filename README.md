@@ -13,6 +13,16 @@ the approach carries.
 | Network | Task | Params | Non-zero | Headline result |
 |---|---|---|---|---|
 | [`handnet/text_quality.py`](handnet/text_quality.py) | text quality 0–100, any language | 100,331 | 627 | AUC 0.86–0.95 kept-vs-removed FineWeb-2 docs in 8 scripts |
+| [`handnet/sentiment.py`](handnet/sentiment.py) | positive/negative, SST-2 | 9,146 | 1,567 | **78.6%** test with 0 labels seen, 79.2% after one revision; beats logistic regression trained on 2,048 sentences |
+| [`handnet/mnist.py`](handnet/mnist.py) | handwritten digits | 28,234 | 662 ink pixels | 55.4% blind, **79.4%** after two revisions ≈ a classifier trained on 200 images — here training wins |
+
+![Designed vs trained, per label](docs/assets/label_efficiency.png)
+
+The sentiment and MNIST networks were written by Claude Fable 5.1 under a strict protocol
+(blind write → sealed test set → bounded revisions, each reported with the labels it looked at →
+trained baselines at matched label counts). Hand-writing wins where the features are
+*nameable* (words, negation, markup, mojibake) and loses where they are statistical
+regularities in pixel space. See [METHOD.md §7](METHOD.md#7-the-protocol-for-a-fair-comparison-with-training).
 
 More networks are being added; see [COORDINATION.md](COORDINATION.md) for what is in
 progress and how to add one.
@@ -24,7 +34,15 @@ git clone https://github.com/BirgerMoell/handnet && cd handnet
 pip install numpy            # the only runtime dependency
 python -m pytest -q tests
 
+python examples/sentiment/eval_sst2.py      # SST-2: 79.2% test, 81.4% dev
+python examples/mnist/eval_mnist.py         # MNIST: 79.4% test
+python examples/sentiment/baselines_sst2.py # trained rows (pip install scikit-learn)
+python examples/mnist/baselines_mnist.py
+
 python - <<'EOF'
+from handnet import sentiment, mnist
+print(sentiment.score("not a bad film at all"))        # 0.615
+print(sentiment.explain("it is never boring"))
 from handnet.text_quality import HandNet
 net = HandNet()
 print(net.n_params, net.n_nonzero)                    # 100331 627

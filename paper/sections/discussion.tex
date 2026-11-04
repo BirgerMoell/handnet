@@ -1,0 +1,47 @@
+% Discussion seed from the sentiment/MNIST thread; the paper thread may restructure.
+\subsection{When does writing beat training?}
+The three networks line up on one axis: how \emph{nameable} the discriminative
+features are (Table~\ref{tab:when}). Where an expert could write the rules as a list
+---this word is positive, negation reaches three words, mojibake looks like
+\texttt{\~A\textparagraph}---the rules map one-to-one onto units and the designed
+network is competitive with thousands of labels. Where the features are statistical
+regularities in pixel space that nobody can enumerate, a few hundred labels beat the
+best drawings anyone can make. Lauritzen's legal-citation task \cite{lauritzen2026}
+sits at the far nameable end (reporter names, volume and page formats), which is why
+designed weights beat 8{,}192 labels there.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lp{3.2cm}p{3.4cm}p{3.2cm}}\toprule
+ & Sentiment & Text quality & Digits\\\midrule
+Input unit & word & character attribute & pixel\\
+Nameable features? & yes: lexicon, negation, contrast & yes: markup, repeats, mojibake, lengths & no\\
+Designed vs trained & wins up to $\sim$3{,}000 labels & AUC 0.86--0.95, no labels & loses beyond $\sim$200 labels\\
+Ceiling & syntax, irony & grammar & fine stroke differences\\
+\bottomrule\end{tabular}
+\caption{Where hand-written weights are competitive.}\label{tab:when}
+\end{table}
+
+\subsection{The revision step is where the labels go}
+A revision after inspecting 500 labelled examples is not zero-label learning; it is
+hypothesis-driven learning with very few degrees of freedom. The right comparison for a
+revised designed network is a trained one at the same label count, which is why every
+table lists labels seen. On MNIST the revised network (500 seen, 79.4\%) loses to a
+trained one on 500 labels (85--86\%); on SST-2 the revised network (872 seen, 79.2\%)
+beats a trained one on 2{,}048.
+
+\subsection{A capability measurement}
+``Can model $M$ write the weights of a working classifier for task $T$?'' has a numeric
+answer; it differs across tasks in an interpretable way; and it will presumably rise
+across model generations. A model that writes a 79\% MNIST classifier from an
+ASCII-art prior and a 79\% SST-2 classifier from its own lexicon is telling us something
+about what it knows that a multiple-choice benchmark does not.
+
+\subsection{Things that went wrong}
+Dual-role words (\emph{never} as negator and as negative) need an explicit decision.
+The blind MNIST drawings were one row too high; a single \emph{unlabelled} look at the
+input distribution would have prevented this and a future protocol should allow it.
+``Painfully funny'' was scored as \emph{painful}+\emph{funny}; intensifier readings of
+negative adverbs are real in review English. A document-length penalty appropriate for
+pretraining filtering dominates single sentences. And when a weight cannot be
+justified in a sentence---as in the abandoned part-based MNIST net---that is the signal
+to stop.

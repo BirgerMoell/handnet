@@ -136,6 +136,53 @@ and measure what training adds; freeze the designed net as an auxiliary input; d
 into something smaller; or do the reverse experiment from the tweet that started this —
 train the same architecture from scratch on labels and compare accuracy per label seen.
 
+## 7. The protocol for a fair comparison with training
+
+The sentiment and MNIST networks were made under a stricter protocol than the text-quality
+net, so that "it works" could be turned into "it is worth N labels". It is the protocol we
+recommend for any new network that has a public benchmark.
+
+1. **Freeze the architecture first** (section 2). A trained model of the same shape is only a
+   meaningful baseline if the shape is the same. Build `clip`, `min` and friends from ReLUs.
+2. **Name every unit** (sections 3–4). A unit that cannot be named should not exist.
+3. **Write the weights blind.** Every non-zero number is typed before any labelled example
+   from the benchmark is seen. General domain knowledge is allowed (which words are positive,
+   what a 7 looks like); the data is not. This is the "0 labels seen" row.
+4. **Evaluate on the sealed test set and print only aggregates** — accuracy, confusion
+   matrix, parameter count. The author never sees which test items failed.
+5. **Allow bounded revisions on a development sample.** A revision is: look at errors on dev
+   or train data, state a hypothesis about language or shape ("negation reaches further than
+   three words", "real 7s start one row lower"), change weights, re-evaluate. Record how many
+   labelled examples it inspected and report every revision as its own row, including those
+   that barely helped. Keep the earlier file (`*_v1_blind.py`, `*_v2_rev1.py`) so the row can
+   be regenerated.
+6. **Train the same shape on 2^k labels** for a range of k and plot accuracy against labels.
+   The hand-written row then reads off as "worth N labels".
+
+Rules for the author (a person or a model): no `fit`, no autograd, no numerical optimisation of
+any kind including grid search over labelled data; no pre-trained resources (word vectors,
+published lexicons, pretrained filters); fixed operations only if parameter-free or hand-set
+(a Gaussian blur yes, a k-means step no).
+
+### Prompting a model to do it
+
+The prompt that produced the sentiment network was one sentence: *"Prove that this technique
+works by hand writing a neural network for sentiment classification. You are not allowed to
+train, you need to do it by hand writing the weights."* The task is named; the constraint is a
+prohibition, not a preference; and *prove* commits the model to a real benchmark rather than
+five demo sentences. For a new task: state task and prohibition; ask for the architecture and
+unit names *before* any weights; let the model write all weights in one pass with a comment on
+each; run the sealed evaluation; allow revisions one at a time with a named hypothesis; train
+the same shape on label subsets.
+
+### When to expect it to work
+
+Ask whether a domain expert could write the features as a list. Sentiment words, negators,
+markup, mojibake, citation formats — yes, and the hand-written net is worth thousands of
+labels. Which pixels separate a 3 from a 5 — no, and a few hundred labels beat the best
+drawings anyone can make. See [sentiment](sentiment.html) and [MNIST](mnist.html) for the two
+ends of that axis.
+
 ## Checklist for a new network in this repo
 
 1. `handnet/<name>.py`: numpy only, zeros allocated up front, `n_params`, `n_nonzero`,

@@ -1,12 +1,9 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-examples/*/fineweb2-sample/
 paper/*.aux
 paper/*.log
 paper/*.out
+paper/*.toc
 paper/*.bbl
 paper/*.blg
-paper/*.fls
-paper/*.fdb_latexmk
-paper/main.pdf
