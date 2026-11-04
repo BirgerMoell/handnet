@@ -6,14 +6,13 @@
 \hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black}
 
 \title{handnet: Neural Networks with Hand-Written Weights}
-\author{Birger Mo\"ell\\ Uppsala University, KTH, AI Sweden \and Claude\\ Anthropic (wrote the weights and code, in conversation with the first author)}
-\date{Draft, November 2026}
+\author{Birger Mo\"ell\thanks{The weights and code were written by Claude Fable 5.1 (Anthropic) in conversation with the author, under the protocol of Section~\ref{sec:protocol}; the author set the tasks, the budgets and the rules, and audited every unit.}}
+\date{November 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-% TODO(paper thread): finalise once the second and third networks and the ablations exist.
 We study neural networks whose weights are \emph{designed} rather than learned. The
 architecture is standard (embeddings, convolutions, ReLU recurrences, multilayer
 perceptrons), the tensors are allocated at a fixed parameter budget, and every non-zero
@@ -38,13 +37,64 @@ and specifications. Code, results and an in-browser demo are at
 \end{abstract}
 
 \section{Introduction}
-% TODO(paper thread): motivation. Points to make:
-% - A trained 100k model uses every weight a little; a designed one uses a few hundred a lot.
-% - Explanation is the network, not an attribution method.
-% - Data-free: no leakage, no corpus bias, identical behaviour across languages/scripts.
-% - Starting observation (Lauritzen, 2026): an LLM asked to hand-write weights for a
-%   100k-param citation classifier used 3.8k non-zero weights and beat the trained version
-%   (97.8% vs 94.6% at 8k labels). We ask how far this carries and how to do it by hand.
+A trained network of 100{,}000 parameters uses all of them a little. The
+question this paper asks is what happens when a network of the same shape uses a
+few hundred of them a lot, and the rest not at all---when the weights are
+\emph{written} rather than learned.
+
+The question is not academic. Much of what a small classifier needs to know is
+knowledge people already have in words: a document that is 40\,\% angle brackets
+is markup; \emph{not} flips the next few words; a zero has a hole and a one does
+not. Classical pipelines put such knowledge into hand-designed features and
+learned the classifier on top. Here the classifier is designed too: the whole
+model is an ordinary neural network---embeddings, convolutions, a ReLU
+recurrence, a multilayer perceptron---whose tensors are allocated at a fixed
+budget, initialised to zero, and then filled in one justified weight at a time.
+The result loads into PyTorch unchanged, can be fine-tuned, and can be compared
+with a trained network of identical architecture on a per-label basis.
+
+The immediate prompt was a report that a language model, asked to hand-write
+the weights of a 100k-parameter classifier for real versus fabricated legal
+citations, used 3{,}793 non-zero weights and outscored the same architecture
+trained on 8{,}192 labelled examples (97.8\,\% against 94.6\,\%)
+\cite{lauritzen2026fable}. One result on one convenient task does not say how
+far this carries, which tasks it carries to, or how to do it deliberately. We
+set out to answer those three questions.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item \textbf{A method} (Section~\ref{sec:method-capped} and surroundings): six
+  constructions---pattern kernels, first-of-run counting, run-length counters as
+  a ReLU recurrence with a closed form, capped detectors from ReLU pairs, $\min$
+  gates, count-then-threshold---that let ordinary task knowledge be written
+  directly as weights, together with a budgeting and naming discipline that
+  makes the network's explanation exact rather than post hoc.
+\item \textbf{A protocol} (Section~\ref{sec:protocol}) that turns ``it works''
+  into ``it is worth $N$ labels'': blind writing, a sealed test set, bounded
+  revisions each reported with the labels it inspected, and trained baselines
+  of the same architecture at matched label counts.
+\item \textbf{Four networks on three tasks}, released with tests, frozen
+  revisions and results. A multilingual text-quality gate of 100{,}331
+  parameters, 627 non-zero, that separates kept from removed FineWeb-2 documents
+  at mean AUC 0.907 across 33 languages and eleven scripts without having seen a
+  document (Sections~\ref{sec:text-quality}--\ref{sec:text-33}); an SST-2
+  sentiment classifier of 1{,}567 non-zero weights at 78.6\,\% written blind
+  (Section~\ref{sec:sentiment}); and two MNIST designs, one whose weights are
+  36 ASCII drawings (79.4\,\%, Section~\ref{sec:mnist}) and one built from
+  stroke kernels, a recurrent hole finder and $5\times5$ sketches (83.3\,\%,
+  above a trained nearest-class-mean classifier, Section~\ref{sec:mnist-holes}).
+\item \textbf{A map of where the approach stops.} Designed weights win where
+  the discriminative features are nameable (words, markup, mojibake, holes) and
+  lose, past a few hundred labels, where they are statistical regularities
+  nobody can enumerate (fine stroke differences). The text network is at chance
+  on single-word grammar errors by construction; the boundary is a result in
+  itself (Section~\ref{sec:discussion}).
+\end{itemize}
+
+Everything is at \url{https://github.com/BirgerMoell/handnet}: the networks in
+numpy with no other dependency, the evaluation scripts, the frozen earlier
+versions behind every revision row, and a browser demo of the text-quality
+network.
 
 \section{Related work}
 Hand-designed features with a learned classifier are the pre-deep-learning norm; here
@@ -78,27 +128,20 @@ construction, with the sparsity pattern carrying the design.
 \input{sections/mnist_holes}
 
 \section{Discussion and limits}
+\label{sec:discussion}
 \input{sections/discussion}
 \input{sections/discussion_holes}
-% Seeds kept from the first draft:
-% - Grammar at chance: the input carries no morphology; this is a representational limit,
-%   not a tuning one. Designed nets are bounded by what the author can articulate in the features.
-% - Fluent machine-translated spam scores 95+: surface shape is all the network sees.
-% - What training adds: initialise the same architecture from the designed weights and
-%   fine-tune on FineWeb-2 labels; report accuracy vs number of labels (the Lauritzen table).
-% - Designed nets as specifications: a threshold change is a one-line edit with a known effect;
-%   tests pin behaviour; the model is reviewable like code.
-% - Cost: ~7 ms/doc numpy, no GPU; ~1000x cheaper than a 0.3B judge.
-
 \section{Conclusion}
-Two ordinary networks, no training, every weight decided: a text-quality gate that agrees
-with FineWeb-2's filters at AUC 0.907 across 33 languages with 627 non-zero weights, and an
-MNIST classifier at 83.3\,\% built from hand-drawn kernels, a hole-finding recurrence and
-ten digits sketched on a $5\times5$ grid. Reasoning gets a network to the level of the
-classical hand-engineered baselines, makes every decision legible, and stops exactly where
-the task knowledge stops being articulable. That boundary is itself a result, and the
-networks are released as initialisations for anyone who wants to measure what training
-adds on top of design.
+Four ordinary networks, no optimiser, every non-zero weight decided and named: a
+text-quality gate that agrees with FineWeb-2's filters at AUC 0.907 across 33
+languages with 627 weights, a sentiment classifier worth a few thousand labels,
+and two digit classifiers built from drawings, one of which beats a trained
+nearest-class-mean baseline. Writing weights gets a network to the level of the
+classical hand-engineered baselines, makes each decision legible and testable,
+and stops where the task knowledge stops being articulable in the input
+features. That boundary moves with the author's knowledge, not with data; the
+protocol makes it measurable, and the networks are released as initialisations
+for anyone who wants to measure what training adds on top of design.
 
 \bibliographystyle{plain}
 \bibliography{refs}

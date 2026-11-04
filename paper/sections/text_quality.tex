@@ -33,10 +33,10 @@ that survived its filtering pipeline and the documents its filters removed.
 We take the first 300 of each from the first shard for Swedish, German,
 Finnish, Turkish, Georgian, Arabic, Hindi and Japanese (Latin, Georgian,
 Arabic, Devanagari and Japanese scripts) and report AUC for kept $>$ removed.
-The network was never run on these documents during development
-except through the error analysis in Section~\ref{sec:tq-devlog}, which used
-the same sample; a held-out shard should be added before publication
-(TODO).
+These eight languages were used for the error analysis in
+Section~\ref{sec:tq-devlog}, so their numbers are development numbers. The 25
+further languages of Section~\ref{sec:text-33} were scored once, after the
+weights were frozen, and serve as the held-out check.
 
 \begin{table}[h]\centering
 \begin{tabular}{lcccccccc}\toprule
