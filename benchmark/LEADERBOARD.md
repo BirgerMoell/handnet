@@ -15,6 +15,7 @@ author looked at before writing that version (0 = blind). Rebuild with
 | Claude Fable 5.1 | v1 blind | 0 | **55.4%** | 5,890 | 544 | no | 26 ASCII templates, written blind (frozen file) | 2026-11-04 |
 | Claude Opus 5.5 | v1 blind, standard prompt | 0 | **55.3%** | 10,074 | 9,639 | yes | sub-agent, no tools (0 tool uses), self-contained | 2026-11-04 |
 | Claude Fable 5.1 | v1 blind, standard prompt | 0 | **41.5%** | 4,824 | 4,716 | yes | sub-agent, no tools (0 tool uses), self-contained | 2026-11-04 |
+| Codex (current session; model ID unavailable) | v1 blind, standard prompt | 0 | **33.0%** | 8,634 | 2,531 | yes | self-written in one reply before any tool use beyond setup steps 1-2; one sample; no fresh context; no tool-disabled sub-agent interface | 2026-11-04 |
 | Claude Sonnet 5.5 | v1 blind | 0 | **31.2%** | 1,970 | 1,960 | yes | standard prompt, sub-agent, no tools (0 tool uses) | 2026-11-04 |
 | Claude Haiku 5.5 | v1 blind | 0 | **10.5%** | 1,960 | 1,960 | yes | standard prompt, sub-agent, no tools (0 tool uses) | 2026-11-04 |
 

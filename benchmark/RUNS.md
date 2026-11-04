@@ -32,3 +32,34 @@ A model's answer to the prompt is one sample. The two blind Fable 5.1 MNIST rows
 paper's first network, 55.4%, and the benchmark run, 41.6%) differ by 14 points with
 the same approach. Report the mean and range over at least three independent runs before
 comparing models; the harness records each run as its own row.
+
+## Codex run 2026-11-04
+
+- Interface/model: Codex desktop, current orchestrator session. The exact underlying
+  model ID is not exposed to this session, so the row is explicitly named
+  `Codex (current session; model ID unavailable)` rather than claiming a model version.
+- Samples: one self-written MNIST sample, `codex_current_session_s1.py`. No other
+  models were sampled. The available sub-agent interface exposes tools and cannot
+  disable them; consequently no sub-agents were spawned and no tool-less execution
+  is claimed. Fresh independent contexts were not available through that interface
+  under the requested no-tools condition; the permitted single-sample fallback was used.
+- Blind procedure: cloned the repository, ensured NumPy was installed, printed the
+  standard MNIST prompt and read README.md/RUNS.md. The author then emitted the
+  complete file in one fenced Python reply before any additional commands. That
+  block was saved unchanged. No examples/*/data contents were inspected by the
+  author; the harness alone loaded the sealed test set after the file was frozen.
+  The author had setup documentation in context, so this is the self-written
+  fallback, not a fresh prompt-only API sample. The chat records the ordering;
+  there is no separate tool-disabled sandbox or sub-agent tool-use audit.
+- Score: one harness evaluation, labels seen 0, accuracy 0.3301 (33.01%), 8,634
+  parameters, 2,531 non-zero weights, self-contained, no static rule violations.
+  NumPy 2.0.2 emitted divide-by-zero, overflow and invalid-value RuntimeWarnings
+  at the two matmul operations. The harness completed and produced the recorded
+  row; the submission was neither repaired nor rescored. No crash occurred.
+- Scope: the harness normally also rewrites docs/benchmark.md. Its documentation
+  export guard was temporarily disabled while running score and leaderboard,
+  then the original harness bytes were restored. Thus no file outside benchmark/
+  was modified, and the scoring logic was unchanged. Python bytecode writing was
+  disabled during evaluation.
+- Optional revisions, SST-2 and addition runs were skipped. One sample does not
+  support an estimate of run-to-run variance or a model-family comparison.
