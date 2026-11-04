@@ -1,0 +1,10 @@
+\begin{table}[h]\centering
+\begin{tabular}{lcccccc}\toprule
+labels seen & 0 (designed) & $2^{6}$ & $2^{8}$ & $2^{10}$ & $2^{12}$ & $2^{14}$ \\\midrule
+addition & 100.0 & 7.7 & 25.9 & 97.4 & 99.0 & 95.2 \\
+dyck & 100.0 & 64.4 & 68.0 & 98.3 & 98.7 & 98.7 \\
+induction & 100.0 & 5.6 & 37.2 & 98.6 & 99.6 & 99.7 \\
+\bottomrule\end{tabular}
+\caption{Exact-match accuracy (\%) of the hand-written transformers (0 labels) and of the same architecture trained from random initialisation on $2^k$ examples, 3{,}000 Adam steps, 1{,}000 held-out problems. Addition: whole sum correct; Dyck: validity; induction: next token in the second copy.}
+\label{tab:transformer}
+\end{table}

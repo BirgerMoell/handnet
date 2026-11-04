@@ -1,0 +1,18 @@
+addition   designed  labels=0      acc=1.000
+addition   trained   labels=64     acc=0.077  (15s)
+addition   trained   labels=256    acc=0.259  (12s)
+addition   trained   labels=1024   acc=0.974  (14s)
+addition   trained   labels=4096   acc=0.990  (12s)
+addition   trained   labels=16384  acc=0.952  (12s)
+dyck       designed  labels=0      acc=1.000
+dyck       trained   labels=64     acc=0.644  (20s)
+dyck       trained   labels=256    acc=0.680  (21s)
+dyck       trained   labels=1024   acc=0.983  (21s)
+dyck       trained   labels=4096   acc=0.987  (21s)
+dyck       trained   labels=16384  acc=0.987  (22s)
+induction  designed  labels=0      acc=1.000
+induction  trained   labels=64     acc=0.056  (35s)
+induction  trained   labels=256    acc=0.372  (34s)
+induction  trained   labels=1024   acc=0.986  (34s)
+induction  trained   labels=4096   acc=0.996  (38s)
+induction  trained   labels=16384  acc=0.997  (36s)

@@ -16,6 +16,7 @@ data-free, and still a real network you can export to PyTorch and fine-tune.
 | [Sentiment](sentiment.html) | positive / negative, SST-2 | 9,146 | 1,567 | 78.6% test with 0 labels seen (79.2% after one revision); beats a logistic regression trained on 2,048 sentences |
 | [MNIST](mnist.html) | handwritten digits | 28,234 | 662 (ink pixels) | 55.4% blind, 79.4% after two revisions — worth ≈ 200 labelled images; here training wins |
 | [MNIST, hole-finder design](mnist_holes.html) | handwritten digits, second design | 21,772 | 2,411 | **83.3%** test; tuned by hand on 5,000 training images (not blind); above a trained nearest-class-mean (81.6%) |
+| [Transformers](transformer.html) | addition with carry, Dyck-1, induction — attention written by hand | 2,851 / 654 / 25,336 | 405 / 26 / 278 | **100%** exact, 0 labels; trained twins need ~1k examples |
 
 The text and digit networks run live in your browser on the [results page](results.html#demo): paste a text, or draw a digit.
 

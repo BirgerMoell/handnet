@@ -20,7 +20,10 @@ weight is placed by reasoning about the task; the vast majority of the budget st
 We describe a small toolbox of constructions (pattern kernels, first-of-run counting,
 run-length counters as a ReLU recurrence with a closed form, capped detectors from ReLU
 pairs, $\min$ gates, count-then-threshold) that lets ordinary task knowledge be written
-directly as weights, and we report experiments on four networks across three tasks. A
+directly as weights, and we report experiments on seven networks across six tasks. Three
+are transformers whose attention heads are written by hand---multi-digit addition with
+carry, Dyck-1 bracket matching and an induction head---and are exact with no labels,
+where trained twins of the same architecture need on the order of a thousand examples. A
 multilingual text-quality network of 100{,}331 parameters (627 non-zero) separates kept
 from removed FineWeb-2 documents with a mean AUC of 0.907 over 33 languages and eleven
 scripts (0.82--0.98) without having seen a document, beating single-statistic baselines
@@ -73,8 +76,11 @@ set out to answer those three questions.
   into ``it is worth $N$ labels'': blind writing, a sealed test set, bounded
   revisions each reported with the labels it inspected, and trained baselines
   of the same architecture at matched label counts.
-\item \textbf{Four networks on three tasks}, released with tests, frozen
-  revisions and results. A multilingual text-quality gate of 100{,}331
+\item \textbf{Seven networks on six tasks}, released with tests, frozen
+  revisions and results. Three transformers with hand-written attention---addition
+  with carry, Dyck-1, induction---exact with zero labels, building forward the
+  circuits mechanistic interpretability reverse-engineers
+  (Section~\ref{sec:transformer}). A multilingual text-quality gate of 100{,}331
   parameters, 627 non-zero, that separates kept from removed FineWeb-2 documents
   at mean AUC 0.907 across 33 languages and eleven scripts without having seen a
   document (Sections~\ref{sec:text-quality}--\ref{sec:text-33}); an SST-2
@@ -121,6 +127,7 @@ construction, with the sparsity pattern carrying the design.
 \input{sections/protocol}
 
 \section{Experiments}
+\input{sections/transformer}
 \input{sections/text_quality}
 \input{sections/text_quality_33}
 \input{sections/sentiment}
@@ -132,7 +139,8 @@ construction, with the sparsity pattern carrying the design.
 \input{sections/discussion}
 \input{sections/discussion_holes}
 \section{Conclusion}
-Four ordinary networks, no optimiser, every non-zero weight decided and named: a
+Seven ordinary networks, no optimiser, every non-zero weight decided and named:
+three transformers whose attention heads add, match brackets and copy exactly, a
 text-quality gate that agrees with FineWeb-2's filters at AUC 0.907 across 33
 languages with 627 weights, a sentiment classifier worth a few thousand labels,
 and two digit classifiers built from drawings, one of which beats a trained

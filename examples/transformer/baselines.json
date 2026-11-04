@@ -1,0 +1,86 @@
+{
+ "addition": {
+  "designed": {
+   "labels": 0,
+   "acc": 1.0,
+   "params": 2851,
+   "nonzero": 405
+  },
+  "trained_2^6": {
+   "labels": 64,
+   "acc": 0.077
+  },
+  "trained_2^8": {
+   "labels": 256,
+   "acc": 0.259
+  },
+  "trained_2^10": {
+   "labels": 1024,
+   "acc": 0.974
+  },
+  "trained_2^12": {
+   "labels": 4096,
+   "acc": 0.99
+  },
+  "trained_2^14": {
+   "labels": 16384,
+   "acc": 0.952
+  }
+ },
+ "dyck": {
+  "designed": {
+   "labels": 0,
+   "acc": 1.0,
+   "params": 654,
+   "nonzero": 26
+  },
+  "trained_2^6": {
+   "labels": 64,
+   "acc": 0.644
+  },
+  "trained_2^8": {
+   "labels": 256,
+   "acc": 0.68
+  },
+  "trained_2^10": {
+   "labels": 1024,
+   "acc": 0.983
+  },
+  "trained_2^12": {
+   "labels": 4096,
+   "acc": 0.987
+  },
+  "trained_2^14": {
+   "labels": 16384,
+   "acc": 0.987
+  }
+ },
+ "induction": {
+  "designed": {
+   "labels": 0,
+   "acc": 1.0,
+   "params": 25336,
+   "nonzero": 278
+  },
+  "trained_2^6": {
+   "labels": 64,
+   "acc": 0.05595996360327571
+  },
+  "trained_2^8": {
+   "labels": 256,
+   "acc": 0.37179253867151957
+  },
+  "trained_2^10": {
+   "labels": 1024,
+   "acc": 0.9859872611464968
+  },
+  "trained_2^12": {
+   "labels": 4096,
+   "acc": 0.9957233848953594
+  },
+  "trained_2^14": {
+   "labels": 16384,
+   "acc": 0.9970882620564149
+  }
+ }
+}

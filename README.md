@@ -16,6 +16,7 @@ the approach carries.
 | [`handnet/sentiment.py`](handnet/sentiment.py) | positive/negative, SST-2 | 9,146 | 1,567 | **78.6%** test with 0 labels seen, 79.2% after one revision; beats logistic regression trained on 2,048 sentences |
 | [`handnet/mnist.py`](handnet/mnist.py) | handwritten digits | 28,234 | 662 ink pixels | 55.4% blind, **79.4%** after two revisions ≈ a classifier trained on 200 images — here training wins |
 | [`handnet/mnist_holes.py`](handnet/mnist_holes.py) | handwritten digits, second design: stroke kernels + recurrent hole finder + 5×5 sketches + named evidence | 21,772 | 2,411 | **83.3%** test; thresholds and votes set by hand after reading feature means and confusion matrices on 5,000 training images (not blind); beats a trained nearest-class-mean (81.6%) |
+| [`handnet/transformer.py`](handnet/transformer.py) | **transformers**: addition with carry, Dyck-1 brackets, induction/copy — attention heads written by hand | 2,851 / 654 / 25,336 | 405 / 26 / 278 | **100%** exact on all three with 0 labels; trained twins need ~1k examples (addition, Dyck) and more for induction |
 
 ![Designed vs trained, per label](docs/assets/label_efficiency.png)
 
