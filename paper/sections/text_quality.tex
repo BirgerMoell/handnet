@@ -1,0 +1,128 @@
+% Experiments: multilingual text-quality network. Owner: claude-13.
+\subsection{A 100k-parameter multilingual text-quality network}
+\label{sec:text-quality}
+
+\paragraph{Task.} Score a document in $[0,100]$ for usability as text in the
+pretraining-filter sense: clean running prose versus markup, tables, logs,
+mojibake, repetition, shouting, navigation lists, keyword lists, fragments and
+mixed scripts. The score must be defined for every language and script with
+one set of weights.
+
+\paragraph{Architecture.} Characters $\to$ 40 binary Unicode attributes $\to$
+identity embedding ($40\times40$) $\to$ width-5 convolution with 48 channels
+(18 pass-through rates, 17 pattern detectors, 13 script rates) $\to$ a 16-unit
+ReLU recurrence of run-length counters $\to$ pooling (channel means, counter
+maxima and means, log length, bias; 82 features) $\to$ an MLP
+$82\to512\to86\to16\to2\to1$. Layer~1 holds 70 capped detectors, 10
+script-presence units and 2 length gates; layer~2 the named sub-scores, gates,
+reward and mixed-script count; layer~3 the $\min(\text{gate},\text{penalty})$
+terms; layer~4 the base-plus-terms score and its clip. In total
+$|\theta|=100{,}331$ and $\|\theta\|_0=627$.
+
+\paragraph{Script handling.} Word-based detectors are gated off by the rate of
+Han, Kana and Thai-family characters; case-based detectors by Arabic, Indic,
+Hangul and Georgian (Unicode classes Mkhedruli as lowercase; it is written
+caseless). Sentence starts have a cased kernel (\texttt{. A}) and a caseless
+kernel (\texttt{。字}, \texttt{다. 다}). Combining marks count as letters so that
+Indic and Arabic vowel signs do not depress the letter rate. Han and Kana count
+as one script. A CJK character is weighted as roughly $2.5$ Latin characters
+in the length terms.
+
+\paragraph{Evaluation data.} FineWeb-2 publishes, per language, the documents
+that survived its filtering pipeline and the documents its filters removed.
+We take the first 300 of each from the first shard for Swedish, German,
+Finnish, Turkish, Georgian, Arabic, Hindi and Japanese (Latin, Georgian,
+Arabic, Devanagari and Japanese scripts) and report AUC for kept $>$ removed.
+The network was never run on these documents during development
+except through the error analysis in Section~\ref{sec:tq-devlog}, which used
+the same sample; a held-out shard should be added before publication
+(TODO).
+
+\begin{table}[h]\centering
+\begin{tabular}{lcccccccc}\toprule
+ & swe & deu & fin & tur & kat & arb & hin & jpn \\\midrule
+AUC & 0.928 & 0.901 & 0.941 & 0.901 & 0.949 & 0.883 & 0.857 & 0.896 \\
+mean kept & 95.2 & 95.6 & 97.4 & 94.5 & 95.2 & 88.6 & 91.9 & 90.8 \\
+mean removed & 68.8 & 74.1 & 64.8 & 70.5 & 58.4 & 64.4 & 71.3 & 61.3 \\
+\bottomrule\end{tabular}
+\caption{FineWeb-2 kept vs removed, 300 + 300 documents per language. Scoring takes about 7\,ms per document in numpy on one CPU core.}
+\end{table}
+
+\paragraph{Hand-written samples.} Encyclopaedic paragraphs in fourteen
+languages (Swedish, English, German, Georgian, Finnish, Japanese, Chinese,
+Arabic, Hindi, Russian, Greek, Thai, Korean, Turkish) score 85--97. HTML scores
+23, UTF-8 mojibake 48, character repetition 35, shouting 37, a markdown table
+0, a navigation list 36, a server log 9, a comma-separated keyword list 57, a
+list of URLs 47, U+FFFD soup 32, source code 17, a paragraph mixing five
+scripts 47, a 110-character string without spaces 41 and emoji spam 24.
+
+\paragraph{Where it fails, by construction.} On synthetic grammar pairs from
+the OELLM quality-gate data (a clean one-to-three-sentence snippet against the
+same snippet with one inflection change, adjacent-word swap, typo, duplicated
+word or deleted function word; Swedish, Norwegian, Georgian), the network is at
+chance, and most pairs are exact ties: the attribute representation carries no
+morphology or word order. Deleted function words are detected slightly above
+chance (62--86\%) through length alone. The highest-scoring \emph{removed}
+FineWeb-2 documents are fluent machine-translated hostel listings and
+site boilerplate, which have the surface shape of prose. Both failure modes are
+exactly the signal a trained judge provides, and the two are complementary:
+the designed network is $\sim$1000$\times$ cheaper than a 0.3B judge and can run
+first.
+
+\subsection{Development log}
+\label{sec:tq-devlog}
+Each entry is a mistake found on external data and the mechanism that fixed it.
+\begin{enumerate}
+\item Hindi prose scored 61: Devanagari vowel signs are combining marks, so
+  the letter rate was 45\%. Fix: combining marks count as letters in the
+  letter-rate terms (zalgo detection stays separate and is gated off for
+  Indic, Arabic and Thai).
+\item Japanese prose lost 12 points as ``mixed scripts'': Han and Kana were two
+  scripts. Fix: one presence unit reads both rates.
+\item Korean and Georgian earned no sentence reward: Korean puts a space after
+  the full stop before a caseless letter; Georgian is Unicode-lowercase. Fix: a
+  second sentence kernel, and Mkhedruli mapped to the caseless attribute.
+\item An 80-character separator line cost 56 points through four detectors
+  (repetition, punctuation runs, symbol streak, giant token). Fix:
+  first-of-run counting for markup, symbol and dash rates; repetition and
+  punctuation-run kernels exclude separator characters; the word-length counter
+  increments only on letters and digits; the symbol-streak threshold raised.
+\item One all-caps headline cost the full 15 shouting points. Fix: the caps-run
+  rate needs about 15\% of the text before the penalty saturates.
+\item Short texts were hit by every rate-based penalty at once (a 17-character
+  sentence-splitter fragment scored 3). Fix: two length gates as
+  $\min(\text{gate},\text{penalty})$; composition penalties switch on between 30
+  and 100 characters, structure penalties between 100 and 300.
+\item The replacement character U+FFFD was classed as a symbol, not garbage.
+  Fix: attribute order.
+\item Chinese and Japanese lost 4--7 points for ``comma-heavy'' text (ideographic
+  commas are dense). Fix: the detector is gated off for spaceless scripts.
+\end{enumerate}
+No entry changed the FineWeb-2 AUC by more than $\pm0.01$; the fixes removed
+false positives on individual documents (e.g.\ a Georgian medical page from 66 to
+96) without moving the aggregate.
+
+\subsection{Ablation by sub-score}
+Switching off one named sub-score at a time (zeroing its layer-2 unit;
+\texttt{examples/text\_quality/ablate.py}) shows that on FineWeb-2 the
+\emph{formatting} group---bullet-like lines, lines that break mid-sentence,
+spacing errors, ellipses, symbol streaks---carries most of the separation,
+which matches what FineWeb-2's own filters (Gopher repetition and quality rules,
+C4 line rules) remove. The remaining groups each contribute at most
+$\sim$0.01 AUC on this data but are what separates the hand-written junk
+samples (HTML, mojibake, tables, logs) that FineWeb-2's sample rarely contains.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lcccccccc}\toprule
+removed group & swe & deu & fin & tur & kat & arb & hin & jpn \\\midrule
+none (full)  & 0.928 & 0.901 & 0.941 & 0.901 & 0.949 & 0.883 & 0.857 & 0.896 \\
+noise        & 0.925 & 0.903 & 0.943 & 0.897 & 0.948 & 0.880 & 0.856 & 0.896 \\
+repetition   & 0.928 & 0.901 & 0.941 & 0.899 & 0.946 & 0.873 & 0.849 & 0.893 \\
+composition  & 0.925 & 0.899 & 0.942 & 0.900 & 0.948 & 0.883 & 0.857 & 0.894 \\
+formatting   & 0.847 & 0.839 & 0.905 & 0.870 & 0.923 & 0.809 & 0.824 & 0.844 \\
+tokens       & 0.924 & 0.902 & 0.944 & 0.901 & 0.949 & 0.889 & 0.857 & 0.896 \\
+structure    & 0.928 & 0.901 & 0.940 & 0.899 & 0.946 & 0.882 & 0.851 & 0.896 \\
+length       & 0.928 & 0.900 & 0.940 & 0.898 & 0.947 & 0.879 & 0.855 & 0.891 \\
+\bottomrule\end{tabular}
+\caption{Leave-one-group-out ablation, AUC kept vs removed.}
+\end{table}

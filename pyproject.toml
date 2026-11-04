@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handnet"
+version = "0.1.0"
+description = "Neural networks with hand-written weights"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.22"]
+
+[project.optional-dependencies]
+eval = ["huggingface_hub", "pyarrow", "fsspec"]
+torch = ["torch"]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["handnet"]

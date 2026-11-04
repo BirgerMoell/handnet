@@ -1,0 +1,80 @@
+% Method section. Owner: text-quality thread (claude-13); additive edits welcome.
+\subsection{Setting}
+A hand-written network is an ordinary feed-forward or recurrent network
+$f_\theta$ whose parameter tensors are allocated at a fixed budget and
+initialised to zero, after which individual entries are set by the author.
+We require that (i) every layer is a standard operation (affine map, ReLU,
+convolution, ReLU recurrence, mean/max pooling), so that $\theta$ loads into
+any deep-learning framework unchanged, and (ii) every non-zero entry carries a
+comment stating why it has its value. We report two numbers for each network:
+the allocated parameter count $|\theta|$ and the number of non-zero entries
+$\|\theta\|_0$.
+
+\subsection{Input representation}
+The weights are only as readable as the features they read. We therefore use
+inputs whose meaning is fixed a priori and make the first embedding the
+identity. For text, each character is mapped to a binary attribute vector
+(Unicode general category, case, script block, punctuation class, combining
+mark, a same-as-previous-character bit, and a few task-specific markers such
+as the lead and tail bytes of UTF-8 mojibake). No vocabulary is involved, so
+one set of weights applies to every language and script.
+
+\subsection{Constructions}
+Six constructions account for every non-zero weight in the networks reported
+here.
+
+\paragraph{Pattern kernels.} A convolution channel with weight $1$ on each
+required (offset, attribute) pair and bias $-(n-1)$ fires under ReLU only when
+all $n$ attributes are present: $\mathrm{relu}(\text{terminal}_{t-2} +
+\text{space}_{t-1} + \text{upper}_t - 2)$ detects a sentence start in cased
+scripts. A large negative weight on an attribute implements exclusion.
+
+\paragraph{First-of-run counting.} $\mathrm{relu}(x_t - \text{same\_prev}_t)$
+is $1$ only at the first character of a run of $x$, so that a separator line
+of eighty dashes contributes one count rather than eighty.
+
+\paragraph{Run-length counters.} A ReLU recurrence
+$h_t=\mathrm{relu}(h_{t-1}+u_t)$ with unit self-weight and input
+$u_t = \text{inc}_t - B\cdot\text{reset}_t$ ($B$ large) counts increments since
+the last reset: characters since the last space (word length), since the last
+sentence end (sentence length), words since the last sentence end. Because the
+self-weight is exactly $1$, the recurrence has the closed form
+$h_t = S_t - \min(0,\min_{k\le t} S_k)$ with $S$ the cumulative sum of $u$
+(the Lindley recursion), so inference is vectorised; the step-by-step
+recurrence is used for the PyTorch export and the two are tested to agree.
+
+\paragraph{Capped detectors.} A penalty that rises from $0$ at threshold $a$
+to its full value at $b$ and saturates is $\min(\mathrm{relu}(x),1) =
+\mathrm{relu}(x) - \mathrm{relu}(x-1)$ with $x$ an affine function of the
+pooled features scaled so that $x=1$ is ``fully bad''. The next layer multiplies
+the pair by a point budget. Every penalty and reward term is one such unit, and
+the sum of the named terms is the output; this is what makes
+\texttt{explain()} exact rather than approximate.
+
+\paragraph{Gates.} A detector that is meaningless for some input mode (word
+length when the script has no spaces; capitalisation when the script has no
+case) receives a weight of $-100$ on the rate of that mode. A soft gate
+$\min(g,p)$, used to switch rate-based penalties on only once the document is
+long enough for rates to be meaningful, costs one extra layer:
+$p - \mathrm{relu}(p-g)$.
+
+\paragraph{Count-then-threshold.} ``More than one script present'' is one
+capped unit per script, summed with bias $-1$ and passed through ReLU; the
+output is the number of extra scripts, itself capped.
+
+\subsection{Budgets and naming}
+The output is a base value plus named reward terms minus named penalty terms,
+grouped into sub-scores and clipped to the target range by a final
+$\mathrm{relu}(z)-\mathrm{relu}(z-100)$. Budgets are chosen in output units:
+in the text-quality network a markup rate above 10\% can cost at most 20 of 100
+points, mojibake at most 35, and the rewards for the shape of running prose sum
+to 28, so that clean prose reaches 100 and a table reaches 0.
+
+\subsection{Development protocol}
+We develop against three sources in order: (1) hand-written samples across
+scripts and junk types, each a test case with a stated reason; (2) a labelled
+external set the network has never seen; (3) the worst mistakes in both
+directions on (2), fixed at the level of the mechanism rather than the sample.
+Every fix is recorded as a comment in the code and a line in
+Section~\ref{sec:tq-devlog}. The network never sees a training signal; the
+author does.

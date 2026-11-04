@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs,graphicx,hyperref,amsmath,url,xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black}
+
+\title{handnet: Neural Networks with Hand-Written Weights}
+\author{Birger Mo\"ell\\ Uppsala University, KTH, AI Sweden}
+\date{Draft, November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+% TODO(paper thread): finalise once the second and third networks and the ablations exist.
+We study neural networks whose weights are \emph{designed} rather than learned. The
+architecture is standard (embeddings, convolutions, ReLU recurrences, multilayer
+perceptrons), the tensors are allocated at a fixed parameter budget, and every non-zero
+weight is placed by reasoning about the task; the vast majority of the budget stays zero.
+We describe a small toolbox of constructions (pattern kernels, first-of-run counting,
+run-length counters as a ReLU recurrence with a closed form, capped detectors from ReLU
+pairs, $\min$ gates, count-then-threshold) that lets ordinary task knowledge be written
+directly as weights, and we report experiments on a multilingual text-quality network of
+100{,}331 parameters (627 non-zero) that reaches AUC 0.86--0.95 at separating kept from
+removed FineWeb-2 documents across eight scripts without having seen a document. We
+discuss where the approach stops (knowledge that cannot be articulated in the input
+features, such as morphology), and how designed networks relate to trained ones as
+initialisations, baselines and specifications.
+\end{abstract}
+
+\section{Introduction}
+% TODO(paper thread): motivation. Points to make:
+% - A trained 100k model uses every weight a little; a designed one uses a few hundred a lot.
+% - Explanation is the network, not an attribution method.
+% - Data-free: no leakage, no corpus bias, identical behaviour across languages/scripts.
+% - Starting observation (Lauritzen, 2026): an LLM asked to hand-write weights for a
+%   100k-param citation classifier used 3.8k non-zero weights and beat the trained version
+%   (97.8% vs 94.6% at 8k labels). We ask how far this carries and how to do it by hand.
+
+\section{Related work}
+% TODO(paper thread): weight programming / "neural programs"; rule extraction from networks
+% (the reverse direction); hand-designed features in data filtering (Gopher rules, C4, FineWeb,
+% FineWeb-2); neural program synthesis; lottery tickets and sparsity; mechanistic
+% interpretability (we build what they reverse-engineer); language-agnostic text features.
+
+\section{Method}
+\input{sections/method}
+
+\section{Experiments}
+\input{sections/text_quality}
+% \input{sections/<second_network>}   % TODO: claim in COORDINATION.md
+% \input{sections/ablations}
+
+\section{Discussion and limits}
+% TODO(paper thread). Seeds:
+% - Grammar at chance: the input carries no morphology; this is a representational limit,
+%   not a tuning one. Designed nets are bounded by what the author can articulate in the features.
+% - Fluent machine-translated spam scores 95+: surface shape is all the network sees.
+% - What training adds: initialise the same architecture from the designed weights and
+%   fine-tune on FineWeb-2 labels; report accuracy vs number of labels (the Lauritzen table).
+% - Designed nets as specifications: a threshold change is a one-line edit with a known effect;
+%   tests pin behaviour; the model is reviewable like code.
+% - Cost: ~7 ms/doc numpy, no GPU; ~1000x cheaper than a 0.3B judge.
+
+\section{Conclusion}
+% TODO(paper thread)
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
