@@ -1,0 +1,48 @@
+COMMAND
+["python3", "-B", "benchmark/harness.py", "score", "--task", "mnist", "--submission", "benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py", "--model", "GPT-6 Astra (ultra)", "--version", "v1 blind, standard prompt", "--labels-seen", "0", "--note", "codex orchestrator; sub-agent no tools, sample 2 of 3; fresh context; 0 tool calls audited; tools prohibited by instruction, not disabled"]
+
+STDOUT
+{
+ "task": "mnist",
+ "model": "GPT-6 Astra (ultra)",
+ "version": "v1 blind, standard prompt",
+ "labels_seen": 0,
+ "accuracy": 0.7091,
+ "n_params": 99901,
+ "n_nonzero": 88547,
+ "submission": "benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py",
+ "note": "codex orchestrator; sub-agent no tools, sample 2 of 3; fresh context; 0 tool calls audited; tools prohibited by instruction, not disabled",
+ "self_contained": true,
+ "rule_violations": [],
+ "seconds": 1.5,
+ "date": "2026-11-04"
+}
+
+STDERR
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:429: RuntimeWarning: divide by zero encountered in matmul
+  upper = coverage_input[:, :98] @ skeletons[:, :98].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:429: RuntimeWarning: overflow encountered in matmul
+  upper = coverage_input[:, :98] @ skeletons[:, :98].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:429: RuntimeWarning: invalid value encountered in matmul
+  upper = coverage_input[:, :98] @ skeletons[:, :98].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:430: RuntimeWarning: divide by zero encountered in matmul
+  lower = coverage_input[:, 98:] @ skeletons[:, 98:].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:430: RuntimeWarning: overflow encountered in matmul
+  lower = coverage_input[:, 98:] @ skeletons[:, 98:].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:430: RuntimeWarning: invalid value encountered in matmul
+  lower = coverage_input[:, 98:] @ skeletons[:, 98:].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:435: RuntimeWarning: divide by zero encountered in matmul
+  mismatch = ink_input @ WEIGHTS["off_skeleton_ink"].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:435: RuntimeWarning: overflow encountered in matmul
+  mismatch = ink_input @ WEIGHTS["off_skeleton_ink"].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:435: RuntimeWarning: invalid value encountered in matmul
+  mismatch = ink_input @ WEIGHTS["off_skeleton_ink"].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:396: RuntimeWarning: divide by zero encountered in matmul
+  pooled.reshape(-1, 196) @ WEIGHTS["hole_band_pooling"].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:396: RuntimeWarning: overflow encountered in matmul
+  pooled.reshape(-1, 196) @ WEIGHTS["hole_band_pooling"].T
+benchmark/submissions/mnist/gpt_6_astra_ultra_s2.py:396: RuntimeWarning: invalid value encountered in matmul
+  pooled.reshape(-1, 196) @ WEIGHTS["hole_band_pooling"].T
+
+EXIT CODE
+0
