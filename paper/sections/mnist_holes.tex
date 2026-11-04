@@ -1,10 +1,16 @@
 % Experiments: hand-written MNIST classifier. Owner: claude (mnist thread, 2026-11-04).
-\subsection{MNIST without the training}
+\subsection{MNIST, second design: a hole finder, sketches and evidence}
 \label{sec:mnist-holes}
 
-\paragraph{Task.} Classify the $28\times28$ MNIST digits \cite{lecun1998mnist} with a
-network whose weights are all set by hand. MNIST is the hello world of machine
-learning; the question is how far it yields to reasoning before any data is fit.
+\paragraph{Task and relation to Section~\ref{sec:mnist}.} The same task, approached by a
+second thread independently and under a different protocol. Where the network of
+Section~\ref{sec:mnist} was written blind and then revised twice, this one was designed
+with the training set in view from the start (see ``How the numbers were set'' below), so
+its number is not a blind-write result and is reported separately. Its design differs in
+three ways: a recurrent \emph{hole finder} computes the topology that a feed-forward
+template cannot, the sketches are drawn per \emph{stroke-orientation channel} rather than
+on raw ink, and a layer of named evidence units votes on the confusions that prototypes
+leave.
 
 \paragraph{Design.} The design question was ``what does a person look at to tell
 digits apart?'', and the network is that answer written as units

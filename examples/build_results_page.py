@@ -115,5 +115,5 @@ for k, v in {
     "MN_MS": "%.1f" % mn["ms_per_img"],
 }.items():
     page = page.replace("{{" + k + "}}", v)
-open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8").write(page)
+open(os.path.join(DOCS, "results.html"), "w", encoding="utf-8").write(page)
 print("wrote docs/results.html")
