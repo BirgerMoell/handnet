@@ -18,6 +18,8 @@ Rules, prompts and harness: [benchmark/](https://github.com/BirgerMoell/handnet/
 | Claude Fable 5.1 | v3 rev2 | 500 | **79.4%** | 7,066 | 662 | no | 36 templates; extra styles for 2/5/6 after viewing error images | 2026-11-04 |
 | Claude Fable 5.1 | v2 rev1 | 500 | **74.3%** | 5,890 | 553 | no | templates redrawn from class means (frozen file) | 2026-11-04 |
 | Claude Fable 5.1 | v1 blind | 0 | **55.4%** | 5,890 | 544 | no | 26 ASCII templates, written blind (frozen file) | 2026-11-04 |
+| Claude Sonnet 5.5 | v1 blind | 0 | **31.2%** | 1,970 | 1,960 | yes | standard prompt, sub-agent, no tools (0 tool uses) | 2026-11-04 |
+| Claude Haiku 5.5 | v1 blind | 0 | **10.5%** | 1,960 | 1,960 | yes | standard prompt, sub-agent, no tools (0 tool uses) | 2026-11-04 |
 
 ## sst2
 
